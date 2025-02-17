@@ -4,8 +4,28 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <openssl/ssl.h>
-#include <frontier.h>
+#include "frontier.h"
 #include <iostream>
+
+int verify_callback(int preverify, X509_STORE_CTX* x509_ctx)
+{
+    int depth = X509_STORE_CTX_get_error_depth(x509_ctx);
+    int err = X509_STORE_CTX_get_error(x509_ctx);
+    
+    X509* cert = X509_STORE_CTX_get_current_cert(x509_ctx);
+    X509_NAME* iname = cert ? X509_get_issuer_name(cert) : NULL;
+    X509_NAME* sname = cert ? X509_get_subject_name(cert) : NULL;
+    
+    std::cout << "Issuer: " << iname << std::endl;
+    std::cout << "Subject: " << sname << std::endl;
+    
+    if(depth == 0) {
+        /* If depth is 0, its the server's certificate. Print the SANs too */
+       std::cout << "Subject (SAN): " << cert << std::endl;
+    }
+
+    return preverify;
+}
 
 int crawl ( ParsedUrl url )
    {
@@ -13,12 +33,25 @@ int crawl ( ParsedUrl url )
    bool headerEnded = false;
    //SSL initialization
    SSL_library_init();
-   SSL_CTX *ctx = SSL_CTX_new( SSLv23_method() );
+   SSL_CTX *ctx = SSL_CTX_new( TLS_client_method() );
+  
    if ( !ctx )
+         {
+         std::cerr << "CTX creation failed." << std::endl;
+         return 1;  
+         }
+   
+   SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
+   SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, verify_callback);
+   SSL_CTX_set_verify_depth(ctx, 4);
+
+   if (SSL_CTX_set_default_verify_paths(ctx) != 1) 
       {
-      std::cerr << "CTX creation failed." << std::endl;
-      return 1;  
+      std::cerr << "Error loading trust store";
+      SSL_CTX_free( ctx );
+      return 1;
       }
+
    SSL *ssl = SSL_new( ctx );
    if ( !ssl )
       {
@@ -46,7 +79,7 @@ int crawl ( ParsedUrl url )
    hints.ai_socktype = SOCK_STREAM;
    hints.ai_protocol = IPPROTO_TCP;
    
-   int status = getaddrinfo( url.Host.c_str(), "80", &hints, &address );
+   int status = getaddrinfo( url.Host.c_str(), "443", &hints, &address );
    if ( status != 0 ) 
       {
       std::cerr << "address lookup failed." << std::endl;
@@ -65,6 +98,7 @@ int crawl ( ParsedUrl url )
    if ( connect( socketfd, address->ai_addr, address->ai_addrlen ) == -1 ) 
       {
       std::cerr << "Socket connection failed." << std::endl;
+      std::cerr << "Error: " << errno << std::endl;
       returnCode = 1;
       goto Cleanup;
       }
@@ -80,7 +114,12 @@ int crawl ( ParsedUrl url )
       returnCode = 1;
       goto Cleanup; 
       }
-   send(socketfd, getMessage.c_str(), getMessage.length(), 0);
+   if (SSL_write( ssl, getMessage.c_str(), getMessage.length() ) <= 0 )
+      {
+      std::cerr << "Failed to write over SSL" << std::endl;
+      returnCode = 1;
+      goto Cleanup;
+      }
    char buffer[10240];
    int bytes;
    while ((bytes = SSL_read(ssl, buffer, sizeof(buffer))) > 0) {
@@ -108,3 +147,14 @@ int crawl ( ParsedUrl url )
    freeaddrinfo(address);
    return returnCode;
    }
+
+
+int main(int argc, char* argv[]) {
+   if (argc != 2) {
+      perror("Usage: ./LinuxGetSsl [url]");
+      return 1;
+   }
+   std::string url = argv[1];
+   crawl(ParsedUrl(url));
+   return 0;
+}
