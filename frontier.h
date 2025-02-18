@@ -29,7 +29,7 @@ public:
 
             // Extract Host
             size_t hostEnd = url.find_first_of(":/", pos);
-            if (hostEnd != std::string::npos) {
+            
                 Host = url.substr(pos, hostEnd - pos);
                 pos = hostEnd;
 
@@ -40,7 +40,6 @@ public:
                     Port = url.substr(pos, portEnd - pos);
                     pos = portEnd;
                 }
-            }
 
             // Extract Path
             if (pos != std::string::npos) {

@@ -8,7 +8,7 @@ LDFLAGS = -L$(OPENSSL_DIR)/lib
 all: LinuxGetSsl LinuxGetUrl
 
 LinuxGetSsl: LinuxGetSsl.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ $(LDFLAGS) -lssl -lcrypto -lz -o LinuxGetSsl
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ $(LDFLAGS) -lssl -lcrypto -lz -o LinuxGetSsl -g
 
 LinuxGetUrl: LinuxGetUrl.cpp
 	$(CXX) $(CXXFLAGS) $^ -o LinuxGetUrl
