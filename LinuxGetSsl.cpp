@@ -77,15 +77,20 @@ int crawl ( ParsedUrl url )
       returnCode = 1;
       goto Cleanup;
       }
-   char buffer[10240]; //why this number??
-   int bytes;
-   int count;
+   char buffer[2000000]; //don't use a buffer! write to a mapped file or other data structure
+   int bytes, count, oldcount;
+   oldcount = 0;
    count = 0;
-   while ((bytes = SSL_read(ssl, buffer, sizeof(buffer))) > 0) {
+   while ((bytes = SSL_read(ssl, buffer + count, sizeof(buffer))) > 0) {
       count += bytes;
-      char* response = buffer;
+      /* for debug
+      for (int i = oldcount; i < count; i++) {
+         std::cout << buffer[i];
+      }
+      oldcount += bytes;*/
       
-      // Skip headers
+      /*// Skip headers
+      char* response = buffer;
       if (!headerEnded) {
          char* bodyStart = strstr(buffer, "\r\n\r\n");
          if (bodyStart) {
@@ -96,11 +101,9 @@ int crawl ( ParsedUrl url )
          }
       }
    
-      SSL_write(ssl, response, bytes - (response - buffer));
+      SSL_write(ssl, response, bytes - (response - buffer));*/ //what's the purpose of this response?
    }
-   for (int i = 0; i < count; i++) {
-      std::cout << buffer[i];
-   }
+   //TODO: parse response. Retry using redirect if HTTP code = 301
 
    // Close the socket and free the address info structure.
    Cleanup:
