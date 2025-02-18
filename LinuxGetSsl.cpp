@@ -32,32 +32,26 @@ int crawl ( ParsedUrl url )
    hints.ai_socktype = SOCK_STREAM;
    hints.ai_protocol = IPPROTO_TCP;
    
-   if (getaddrinfo(url.Host.c_str(), "443", &hints, &address) < 0) {
+   if ( getaddrinfo(url.Host.c_str(), "443", &hints, &address) < 0 ) 
+      {
       std::cout << "Address lookup failed." << std::endl;
       exit(1);
-   }
-
+      }
    int sd = 0;
-   for (struct addrinfo *addr = address; addr != NULL; addr = addr->ai_next) {
+   for ( struct addrinfo *addr = address; addr != NULL; addr = addr->ai_next ) 
+      {
       sd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
-
       if (sd == -1) break;
       if (connect(sd, addr->ai_addr, addr->ai_addrlen) == 0) break;
-
       close(sd);
       sd = -1;
-   }
+      }
    freeaddrinfo(address);
-
-   if (sd == -1) {
+   if ( sd == -1 ) 
+      {
       std::cout << "Couldn't connect to host." << std::endl;
       return 1;
-   }
-   
-   // Build an SSL layer and set it to read/write
-   // to the socket we've connected.
-   //always returns 1
-
+      }
    OpenSSL_add_all_algorithms();
    SSL_load_error_strings();
    SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
