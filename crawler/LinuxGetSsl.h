@@ -7,7 +7,7 @@
 #include "frontier.h"
 #include <iostream>
 
-int crawl ( ParsedUrl url )
+int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    {
    int returnCode = 0;
    bool headerEnded = false;
@@ -83,31 +83,30 @@ int crawl ( ParsedUrl url )
       returnCode = 1;
       goto Cleanup;
       }
-   char buffer[2000000]; //don't use a buffer! write to a mapped file or other data structure
-   int bytes, count, oldcount;
+   int bytes, oldcount;
    oldcount = 0;
-   count = 0;
-   while ((bytes = SSL_read(ssl, buffer + count, sizeof(buffer))) > 0) {
-      count += bytes;
-      /* for debug */
-      for (int i = oldcount; i < count; i++) {
+   pageSize = 0;
+   while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0) {
+      pageSize += bytes;
+      // for debug 
+      for (int i = oldcount; i < pageSize; i++) {
          std::cout << buffer[i];
       }
       oldcount += bytes;
       
-      /*// Skip headers
-      char* response = buffer;
+      // Skip headers
       if (!headerEnded) {
          char* bodyStart = strstr(buffer, "\r\n\r\n");
          if (bodyStart) {
-               response = bodyStart + 4;  // Skip "\r\n\r\n"
+               memmove(buffer, bodyStart + 4, pageSize);
+               pageSize = sizeof(buffer) - 1;
                headerEnded = true;
          } else {
                continue;  // Headers are incomplete, keep reading
          }
       }
    
-      SSL_write(ssl, response, bytes - (response - buffer));*/ //what's the purpose of this response?
+      //SSL_write(ssl, response, bytes - (response - buffer)); //what's the purpose of this response?
    }
    //TODO: parse response. Retry using redirect if HTTP code = 301
 
@@ -118,15 +117,3 @@ int crawl ( ParsedUrl url )
    close(sd);
    return returnCode;
    }
-
-
-int main(int argc, char* argv[]) {
-   if (argc != 2) {
-      perror("Usage: ./LinuxGetSsl [url]");
-      return 1;
-   }
-   std::string url = argv[1];
-   ParsedUrl purl(url);
-   crawl(purl);
-   return 0;
-}
