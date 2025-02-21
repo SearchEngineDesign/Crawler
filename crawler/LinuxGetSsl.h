@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <openssl/ssl.h>
+#include <openssl/err.h>
 #include "frontier.h"
 #include <iostream>
 
@@ -58,22 +59,36 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    // to the socket we've connected.
    //always returns 1
 
+   SSL_library_init();
    OpenSSL_add_all_algorithms();
    SSL_load_error_strings();
    SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
 
    if (ctx == NULL) {
-      fprintf(stderr, "ERROR: could not initialize the SSL context: %s\n",
-               strerror(errno));
+      std::cerr << "Couldn't initialize SSL context." << std::endl;
       return 1;
    }
 
    SSL *ssl = SSL_new(ctx);
+   if (!ssl) {
+      std::cerr << "SSL initialization failed." << std::endl;
+      return 1;
+   }
+   SSL_set_tlsext_host_name(ssl, url.Host.c_str());
+   
    SSL_set_fd(ssl, sd);
 
-   if (SSL_connect(ssl) != 1) {
+   int connect = SSL_connect(ssl);
+   if (connect != 1) {
       std::cerr << "SSL connection failed." << std::endl;
-      std::cerr << "Error: " << errno << std::endl;
+      int err = SSL_get_error(ssl, connect);
+      if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+      } else {
+         char error_buffer[256];
+         ERR_error_string_n(ERR_get_error(), error_buffer, sizeof(error_buffer));
+         std::cerr << "SSL_connect failed with error code: " << err << std::endl;
+         std::cerr << "Error string: " << error_buffer << std::endl;
+      }
       returnCode = 1;
       goto Cleanup; 
    }

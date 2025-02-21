@@ -1,14 +1,6 @@
 1. 421 Misdirected Request -- no response besides header
 
-HTTP/1.1 421 Misdirected Request
-Connection: close
-Content-Length: 297
-content-type: text/plain; charset=utf-8
-x-served-by: cache-dtw8026
-
-Requested host does not match any Subject Alternative Names (SANs) on TLS certificate
-
-https://www.9news.com.au/
+RESOLVED - this error has to do with querying servers that host multiple hostnames.
 
 2. Junk HTML response -- response is random bytes
 
@@ -34,14 +26,7 @@ http://www.berkshirehathaway.com/message.html
 
 3. SSL connection failure -- SSL fails to connect, for whatever reason
 
-SSL connection failed.
-Error: 0
-
-https://stackoverflow.com/questions
-https://www.quora.com/
-https://www.bing.com/
-https://chatgpt.com/
-https://www.zoom.com/
+RESOLVED - same cause as 1.
 
 4. Parser doesn't recognize links -- links are in buffer (i.e. hrefs exist), but parser doesn't see them
 
