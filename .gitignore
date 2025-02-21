@@ -34,5 +34,5 @@
 .vscode
 
 
-*.dSYM
+*.dSYM/
 *.DS_Store
