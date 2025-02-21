@@ -28,7 +28,15 @@ enum class DesiredAction
    DiscardSection,
    Anchor,
    Base,
-   Embed
+   Embed,
+   Head1,
+   Head2,
+   Head3,
+   Head4,
+   Head5,
+   Head6,
+   Bold,
+   Italic
    };
 
 // name points to beginning of the possible HTML tag name.
@@ -69,7 +77,7 @@ const HtmlTag TagsRecognized[ ] =
    { "article",      DesiredAction::Discard },
    { "aside",        DesiredAction::Discard },
    { "audio",        DesiredAction::Discard },
-   { "b",            DesiredAction::Discard },
+   { "b",            DesiredAction::Bold },
 
    { "base",         DesiredAction::Base },
 
@@ -114,18 +122,18 @@ const HtmlTag TagsRecognized[ ] =
    { "form",         DesiredAction::Discard },
    { "frame",        DesiredAction::Discard },
    { "frameset",     DesiredAction::Discard },
-   { "h1",           DesiredAction::Discard },
-   { "h2",           DesiredAction::Discard },
-   { "h3",           DesiredAction::Discard },
-   { "h4",           DesiredAction::Discard },
-   { "h5",           DesiredAction::Discard },
-   { "h6",           DesiredAction::Discard },
+   { "h1",           DesiredAction::Head1 },
+   { "h2",           DesiredAction::Head2 },
+   { "h3",           DesiredAction::Head3 },
+   { "h4",           DesiredAction::Head4 },
+   { "h5",           DesiredAction::Head5 },
+   { "h6",           DesiredAction::Head6 },
    { "head",         DesiredAction::Discard },
    { "header",       DesiredAction::Discard },
    { "hgroup",       DesiredAction::Discard },
    { "hr",           DesiredAction::Discard },
    { "html",         DesiredAction::Discard },
-   { "i",            DesiredAction::Discard },
+   { "i",            DesiredAction::Italic },
    { "iframe",       DesiredAction::Discard },
    { "img",          DesiredAction::Discard },
    { "input",        DesiredAction::Discard },

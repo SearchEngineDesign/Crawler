@@ -1,244 +1,104 @@
-// HtmlParser.cpp
-// Nicole Hamlton, nham@umich.edu
+// HtmlParser.h
+// Nicole Hamilton, nham@umich.edu
 
-// If you don't define the HtmlParser class methods inline in
-// HtmlParser.h, you may do it here.
+#pragma once
 
-#include "HtmlParser.h"
 #include <vector>
-#include <string>
-#include <cstring>
-#include <iostream>
+#include "HtmlTags.h"
+#include <string> 
 using namespace std;
+// This is a simple HTML parser class.  Given a text buffer containing
+// a presumed HTML page, the constructor will parse the text to create
+// lists of words, title words and outgoing links found on the page.  It
+// does not attempt to parse the entire the document structure.
+//
+// The strategy is to word-break at whitespace and HTML tags and discard
+// most HTML tags.  Three tags require discarding everything between
+// the opening and closing tag. Five tags require special processing.
+//
+// We will use the list of possible HTML element names found at
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Element +
+// !-- (comment), !DOCTYPE and svg, stored as a table in HtmlTags.h.
 
-HtmlParser::HtmlParser( const char *buffer, size_t length )
+// Here are the rules for recognizing HTML tags.
+//
+// 1. An HTML tag starts with either < if it's an opening tag or </ if
+//    it's closing token.  If it starts with < and ends with /> it is both.
+//
+// 2. The name of the tag must follow the < or </ immediately.  There can't
+//    be any whitespace.
+//
+// 3. The name is terminated by whitespace, > or / and is case-insensitive.
+//
+// 4. If it is terminated by whitepace, arbitrary text representing various
+//    arguments may follow, terminated by a > or />.
+//
+// 5. If the name isn't on the list we recognize, we assume it's the whole
+//    is just ordinary text.
+//
+// 6. Every token is taken as a word-break.
+//
+// 7. Most opening or closing tokens can simply be discarded.
+//
+// 8. <script>, <style>, and <svg> require discarding everything between the
+//    opening and closing tag.  Unmatched closing tags are discarded.
+//
+// 9. <!--, <title>, <a>, <base> and <embed> require special processing.
+// 
+//      <-- is the beginng of a comment.  Everything up to the ending -->
+//          is discarded.
+//
+//      <title> should cause all the words between the opening and closing
+//          tags to be added to the titleWords vector rather than the default
+//          words vector.  A closing </title> without an opening <title> is discarded.
+
+   //   <a> is expected to contain an href="...url..."> argument with the
+   //       URL inside the double quotes that should be added to the list
+   //       of links.  All the words in between the opening and closing tags
+   //       should be collected as anchor text associated with the link
+   //       in addition to being added to the words or titleWords vector,
+   //       as appropriate.  A closing </a> without an opening <a> is
+   //       discarded.
+//
+//     <base> may contain an href="...url..." parameter.  If present, it should
+//          be captured as the base variable.  Only the first is recognized; any
+//          others are discarded.
+//
+//     <embed> may contain a src="...url..." parameter.  If present, it should be
+//          added to the links with no anchor text.
+
+
+
+class Link
    {
-   size_t i = 0;  
-   bool inTitle = false;  
-   bool indiscard = false;  
-   bool inAnchor;  
-   string url;  
-   vector< string > curr_anchorText;  
-   const char *p = buffer;  
-   const char *end = buffer + length;  
+   public:
+      std::string URL;
+      std::vector< std::string > anchorText;
 
-   while ( p < end )
-      {
-      if ( *p == '<' )
+      Link( std::string URL ) : URL( URL )
          {
-         p++;  
-         bool endflag = ( *p == '/' );  
-         if ( endflag )
-            p++;  
-
-         const char *tag_start = p;  
-         while ( p < end && *p != '>' && *p != '/' && !isspace( *p ) )
-            p++;  
-
-         DesiredAction action = LookupPossibleTag( tag_start, p );  
-         if ( endflag )
-            {
-            if ( action == DesiredAction::Title )
-               inTitle = false;  
-            else if ( action == DesiredAction::Anchor )
-               {
-               if ( inAnchor )
-                  {
-                  inAnchor = false;  
-                  if ( !url.empty() )
-                     {
-                     Link curr_link( url );  
-                     links.push_back( curr_link );  
-                     links.back().anchorText = curr_anchorText;  
-                     }
-                  curr_anchorText.clear();  
-                  }
-               else
-                  {
-                  while ( p < end && *p!= '>' )
-                     p++;  
-                  p ++;  
-                  continue;  
-                  }
-               }
-            else if ( action == DesiredAction::DiscardSection )
-               indiscard = false;  
-            }
-         else
-            {
-            switch ( action )
-               {
-               case DesiredAction::Title:
-                  if ( inTitle )
-                     {
-                     while ( p < end && *p != '>' )
-                        p++;  
-                     p++;  
-                     continue;  
-                     }
-                  inTitle = true;  
-                  break;  
-
-               case DesiredAction::Base:
-                  while ( p < end && base.empty() )
-                     {
-                     if ( strncmp( p, "href=", 5 ) == 0 && p[ 5 ] == '"' )
-                        {
-                        p += 6;  
-                        const char *start = p;  
-                        while ( *p != '"' && p < end ) 
-                           p++;  
-                        base.assign( start, p - start );  
-                        break;  
-                        }
-                     else if ( memcmp( p, "/>", 2 ) == 0 )
-                        break;  
-                     p++;  
-                     }
-                  break;  
-
-               case DesiredAction::Embed:
-                  {
-                  string embed_url = "";  
-                  while ( p < end && *p != '>' )
-                     {
-                     if ( memcmp( p, "src=", 4 ) == 0 && p[ 4 ] == '"' )
-                        {
-                        p += 5;  
-                        const char *start = p;  
-                        while ( *p != '"' && p < end ) 
-                           p++;  
-                        embed_url.assign( start, p - start );  
-                        break;  
-                        }
-                     p++;  
-                     }
-                  if ( !embed_url.empty() )
-                     links.emplace_back( url );  
-                  break;  
-                  }
-               case DesiredAction::Anchor:
-                  while ( p < end && *p != '>' )
-                     {
-                     if ( strncmp( p, "href=", 5 ) == 0 && p[ 5 ] == '"' ) 
-                        {
-                        if ( inAnchor )
-                           {
-                           if ( !url.empty() )
-                              {
-                              Link curr_link( url );  
-                              links.push_back( curr_link );  
-                              links.back().anchorText = curr_anchorText;  
-                              curr_anchorText.clear();  
-                              }
-                           curr_anchorText.clear();  
-                           }
-                        inAnchor = true;  
-                        p += 6;  
-                        const char *start = p;  
-                        while ( *p != '"' && p < end )
-                           p++;  
-                        url.assign( start, p - start );  
-                        break;  
-                        }
-                     p++;  
-                     }
-                  break;  
-
-               case DesiredAction::Comment:
-                  while ( p < end - 2 && !( p[ 0 ] == '-' && p[ 1 ] == '-' && p[ 2 ] == '>' ) ) 
-                     p++;  
-                  break;  
-
-               case DesiredAction::DiscardSection:
-                  indiscard = true;  
-                  break;  
-
-               case DesiredAction::OrdinaryText:
-                  {
-                  const char *start = p - 2;  
-                  while ( p < end - 1 && *p != '<' && !isspace( *p ) && !( p[ 0 ] == '/' && p[ 1 ] == '>' ) )
-                     p++;  
-                  const string word( start, p - start );  
-                  const bool emptyWord = ( p - start ) == 0;  
-
-                  if ( !emptyWord && !indiscard )
-                     {
-                     if ( inTitle )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !titleWords.empty() )
-                           titleWords.back() += word;  
-                        else 
-                           titleWords.emplace_back( word );  
-
-                        if ( inAnchor ) 
-                           {
-                           if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
-                              curr_anchorText.back() += word;  
-                           else
-                              curr_anchorText.emplace_back( word );  
-                           }
-                        }
-                     else if ( inAnchor )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
-                           {
-                           curr_anchorText.back() += word;  
-                           words.back() += word;  
-                           } 
-                        else
-                           {
-                           curr_anchorText.emplace_back( word );  
-                           words.emplace_back( word );  
-                           }
-                        }
-                     else
-                        {
-                        if ( !isspace( *( start - 1) ) ) 
-                           words.back() += word;  
-                        else 
-                           words.emplace_back( word );  
-                        }
-                     continue;  
-                     }
-                  }
-               default:
-                  break;  
-               }
-            }
-            
-         while ( p < end && *p != '>' ) 
-            p++;  
-         p++;  
          }
-      else
-         {
-         const char *start = p;  
-         while ( p < end && *p != '<' && !isspace( *p ) && !( p[ 0 ] == '/' && p[ 1 ] == '>' ) )
-            p++;  
+   };
 
-         const bool isEmptyWord = ( p - start ) == 0;  
 
-         if ( !isEmptyWord && !indiscard )
-            {
-            if ( inTitle )
-               {
-               titleWords.emplace_back( start, p - start );  
-               if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );  
-               }
-            else if ( inAnchor  )
-               {
-               curr_anchorText.emplace_back( start, p - start );  
-               words.emplace_back( start, p - start );  
-               }
-            else
-               words.emplace_back( start, p - start );  
-            }
-         if ( p < end && *p == '<' ) 
-            continue;  
-         else 
-            p++;  
-         }
-      }
-   }
+class HtmlParser
+   {
+   public:
+
+      std::vector< std::string > words, titleWords;
+      std::vector< Link > links;
+      std::string base;
+      std::vector< std::string > head1Words, head2Words, head3Words, head4Words, head5Words, head6Words;
+      std::vector< std::string > boldWords, italicWords;
+
+   private:
+      // Your code here.
+
+   public:
+
+      // The constructor is given a buffer and length containing
+      // presumed HTML.  It will parse the buffer, stripping out
+      // all the HTML tags and producing the list of words in body,
+      // words in title, and links found on the page.
+      HtmlParser(const char *buffer, size_t length);
+   };

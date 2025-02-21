@@ -15,41 +15,29 @@ using namespace std;
 DesiredAction LookupPossibleTag( const char *name, const char *nameEnd )
    {
       // Your code here.
-      nameEnd = nameEnd ? nameEnd : name + strlen( name );
-      size_t length = nameEnd - name;
-      if ( length > LongestTagLength ){
-         return DesiredAction::OrdinaryText;
-      }
-      char lowerName[length + 1];
-      for (size_t i = 0; i < length; i++) {
-         lowerName[i] = tolower(static_cast<unsigned char>(name[i]));
-      }
-      lowerName[length] = '\0';
-      int left = 0;
-      int right = NumberOfTags - 1;
+      nameEnd = nameEnd ? nameEnd : name + strlen( name );  
+      size_t length = nameEnd - name;  
+      if ( length > LongestTagLength )
+         return DesiredAction::OrdinaryText;  
+      char lowerName[ length + 1 ];  
+      for ( size_t i = 0; i < length; i++ )
+         lowerName[ i ] = tolower( static_cast<unsigned char>( name[ i ] ) );  
+      
+      lowerName[length] = '\0';  
+      int left = 0;  
+      int right = NumberOfTags - 1;  
       while( left <= right )
-      {
-         int mid = left + (right - left)/2;
-         const char *tag = TagsRecognized[mid].Tag;
-         size_t targetLength = strlen(tag);
+         {
+         int mid = left + ( right - left ) / 2;  
+         const char *tag = TagsRecognized[ mid ].Tag;  
          
-         int cmp = memcmp(tag,lowerName,min(length,targetLength));
+         int cmp = strcmp( tag, lowerName );  
          if ( cmp == 0 )
-         {
-            if ( targetLength == length)
-            {
-               return TagsRecognized[mid].Action;
-            }
-            cmp = (targetLength < length) ? -1 : 1;
-         }
-         if (cmp < 0 )
-         {
-            left = mid + 1;
-         }
+            return TagsRecognized[ mid ].Action;  
+         else if ( cmp < 0 )
+            left = mid + 1;  
          else
-         {
-            right = mid - 1;
+            right = mid - 1;  
          }
-      }
-      return DesiredAction::OrdinaryText;
+      return DesiredAction::OrdinaryText;  
    }
