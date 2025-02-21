@@ -9,9 +9,9 @@
 #include "../include/string.h"
 #include <iostream>
 using namespace std;
-// std::vector< std::string > words, titleWords;
-// std::vector< Link > links;
-// std::string base;
+// vector< string > words, titleWords;
+// vector< Link > links;
+// string base;
 
 HtmlParser::HtmlParser( const char *buffer, size_t length )
    {

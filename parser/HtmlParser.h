@@ -5,7 +5,7 @@
 
 #include "../include/vector.h"
 #include "HtmlTags.h"
-#include "../include/vector.h"
+#include "../include/string.h"
 using namespace std;
 // This is a simple HTML parser class.  Given a text buffer containing
 // a presumed HTML page, the constructor will parse the text to create
@@ -72,10 +72,10 @@ using namespace std;
 class Link
    {
    public:
-      std::string URL;
-      std::vector< std::string > anchorText;
+      string URL;
+      vector< string > anchorText;
 
-      Link( std::string URL ) : URL( URL )
+      Link( string URL ) : URL( URL )
          {
          }
    };
@@ -85,11 +85,11 @@ class HtmlParser
    {
    public:
 
-      std::vector< std::string > words, titleWords;
-      std::vector< Link > links;
-      std::string base;
-      std::vector< std::string > head1Words, head2Words, head3Words, head4Words, head5Words, head6Words;
-      std::vector< std::string > boldWords, italicWords;
+      vector< string > words, titleWords;
+      vector< Link > links;
+      string base;
+      vector< string > head1Words, head2Words, head3Words, head4Words, head5Words, head6Words;
+      vector< string > boldWords, italicWords;
 
    private:
       // Your code here.

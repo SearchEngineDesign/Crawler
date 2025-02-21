@@ -1,6 +1,7 @@
 // vector.h
 // 
 // Starter file for a vector template
+#pragma once
 #include <utility>
 #include <initializer_list>
 #include <iostream>
