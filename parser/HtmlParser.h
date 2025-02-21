@@ -88,6 +88,8 @@ class HtmlParser
       std::vector< std::string > words, titleWords;
       std::vector< Link > links;
       std::string base;
+      std::vector< std::string > head1Words, head2Words, head3Words, head4Words, head5Words, head6Words;
+      std::vector< std::string > boldWords, italicWords;
 
    private:
       // Your code here.
