@@ -5,9 +5,8 @@
 // HtmlParser.h, you may do it here.
 
 #include "HtmlParser.h"
-#include <vector>
-#include <string>
-#include <cstring>
+#include "../include/vector.h"
+#include "../include/string.h"
 #include <iostream>
 using namespace std;
 // std::vector< std::string > words, titleWords;

@@ -1,5 +1,4 @@
 #include <ctype.h>
-#include <cstring>
 #include <cassert>
 #include <iostream> 
 #include "HtmlTags.h"

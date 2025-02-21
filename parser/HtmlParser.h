@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <vector>
+#include "../include/vector.h"
 #include "HtmlTags.h"
-#include <string> 
+#include "../include/vector.h"
 using namespace std;
 // This is a simple HTML parser class.  Given a text buffer containing
 // a presumed HTML page, the constructor will parse the text to create
