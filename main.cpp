@@ -1,4 +1,5 @@
 #include "crawler/LinuxGetSsl.h"
+#include "parser/HtmlParser.h"
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -29,25 +30,27 @@ int main(int argc, char* argv[]) {
       size_t pageSize;
       ParsedUrl purl(url);
       crawl(purl, buffer, pageSize);
-      std::cout << "Sending: " << pageSize << std::endl;
       send(sockets[1], &pageSize, sizeof(size_t), 0);
       send(sockets[1], buffer, strlen(buffer), 0);
-
       close(sockets[1]);
    } else {
       // Parent process
       close(sockets[1]); // Close the writing end
       size_t pageSize;
-      ssize_t bytes_received = recv(sockets[0], &pageSize, sizeof(size_t), 0);
-      char buffer[pageSize];
-      bytes_received = recv(sockets[0], buffer, sizeof(buffer), 0);
-      if (bytes_received > 0) {
-         buffer[bytes_received] = '\0';
-         std::cout << "Parent received: " << buffer << std::endl;
+      if (recv(sockets[0], &pageSize, sizeof(size_t), 0) > 0) {
+         char buffer[pageSize];
+         size_t bytes, bytes_received = 0;
+         while ((bytes = recv(sockets[0], buffer + bytes_received, sizeof(buffer), 0)) > 0) {
+            bytes_received += bytes;
+         }
+         HtmlParser parser( buffer, pageSize );
+         for (auto i : parser.links) 
+            std::cout << i.URL << std::endl;
+         close(sockets[0]);
       }
-
-      close(sockets[0]);
+      
    }
+   
 
    return 0;
 }

@@ -33,7 +33,7 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    hints.ai_protocol = IPPROTO_TCP;
    
    if (getaddrinfo(url.Host.c_str(), "443", &hints, &address) < 0) {
-      std::cout << "Address lookup failed." << std::endl;
+      std::cerr << "Address lookup failed." << std::endl;
       exit(1);
    }
 
@@ -50,7 +50,7 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    freeaddrinfo(address);
 
    if (sd == -1) {
-      std::cout << "Couldn't connect to host." << std::endl;
+      std::cerr << "Couldn't connect to host." << std::endl;
       return 1;
    }
    
@@ -89,26 +89,11 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0) {
       pageSize += bytes;
       // for debug 
-      for (int i = oldcount; i < pageSize; i++) {
+      /*for (int i = oldcount; i < pageSize; i++) {
          std::cout << buffer[i];
       }
-      oldcount += bytes;
-      
-      // Skip headers
-      if (!headerEnded) {
-         char* bodyStart = strstr(buffer, "\r\n\r\n");
-         if (bodyStart) {
-               memmove(buffer, bodyStart + 4, pageSize);
-               pageSize = sizeof(buffer) - 1;
-               headerEnded = true;
-         } else {
-               continue;  // Headers are incomplete, keep reading
-         }
-      }
-   
-      //SSL_write(ssl, response, bytes - (response - buffer)); //what's the purpose of this response?
+      oldcount += bytes;*/
    }
-   //TODO: parse response. Retry using redirect if HTTP code = 301
 
    // Close the socket and free the address info structure.
    Cleanup:

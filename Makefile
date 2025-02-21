@@ -7,7 +7,7 @@ LDFLAGS = -L$(OPENSSL_DIR)/lib
 
 all: LinuxGetSsl #LinuxGetUrl
 
-LinuxGetSsl: main.cpp
+LinuxGetSsl: main.cpp parser/HtmlParser.cpp parser/HtmlTags.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ $(LDFLAGS) -lssl -lcrypto -lz -o LinuxGetSsl -g
 
 LinuxGetUrl: LinuxGetUrl.cpp
