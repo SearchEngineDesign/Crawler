@@ -8,8 +8,9 @@
 #include "frontier.h"
 #include <iostream>
 
-int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
+int crawl ( ParsedUrl url, char *buffer, size_t &pageSize, &mutex bufferLock)
    {
+   std::lock_guard<std::mutex> lock(bufferLock);
    int returnCode = 0;
    bool headerEnded = false;
    
@@ -98,17 +99,13 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       returnCode = 1;
       goto Cleanup;
       }
-   int bytes, oldcount;
-   oldcount = 0;
+   int bytes;
+   bytes = 0;
    pageSize = 0;
    while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0) {
       pageSize += bytes;
-      // for debug 
-      for (int i = oldcount; i < pageSize; i++) {
-         std::cout << buffer[i];
-      }
-      oldcount += bytes;
    }
+   std::lock_guard<std::mutex> lock(bufferLock);
 
    // Close the socket and free the address info structure.
    Cleanup:
