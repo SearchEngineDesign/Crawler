@@ -392,66 +392,66 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
             {
             if ( inTitle )
                {
-               titleWords.push_back( string( start, p - start ) );  
+               titleWords.emplace_back( start, p - start );  
                if ( inAnchor )
-                  curr_anchorText.push_back( string( start, p - start ) );  
+                  curr_anchorText.emplace_back( start, p - start );  
                }
             else if ( inHead1 )
                {
-               head1Words.push_back( string( start, p - start ) );
-               words.push_back( string( start, p - start ) );
+               head1Words.emplace_back( start, p - start );
+               words.emplace_back( start, p - start );
                if ( inAnchor )
-                  curr_anchorText.push_back( string( start, p - start ) );
+                  curr_anchorText.emplace_back( start, p - start );
                }
             else if ( inHead2 )
                {
-               head2Words.push_back( string( start, p - start ) );
-               words.push_back( string( start, p - start ) );
+               head2Words.emplace_back( start, p - start );
+               words.emplace_back( start, p - start );
                if ( inAnchor )
                   curr_anchorText.push_back( string( start, p - start )  );
                }
             else if ( inHead3 )
                {
-               head3Words.push_back( string( start, p - start ) );
-               words.push_back( string( start, p - start ) );
+               head3Words.emplace_back( start, p - start );
+               words.emplace_back( start, p - start );
                if ( inAnchor )
-                  curr_anchorText.push_back( string( start, p - start ) );
+                  curr_anchorText.emplace_back( start, p - start );
                }
             else if ( inHead4 )
                {
-               head4Words.push_back( string( start, p - start ) );
-               words.push_back( string( start, p - start ) );
+               head4Words.emplace_back( start, p - start );
+               words.emplace_back( start, p - start );
                if ( inAnchor )
-                  curr_anchorText.push_back( string( start, p - start ) );
+                  curr_anchorText.emplace_back( start, p - start );
                }
             else if ( inHead5 )
                {
-               head5Words.push_back( string( start, p - start ) );
-               words.push_back( string( start, p - start ) );
+               head5Words.emplace_back( start, p - start );
+               words.emplace_back( start, p - start );
                if ( inAnchor )
-                  curr_anchorText.push_back( string( start, p - start ) );
+                  curr_anchorText.emplace_back( start, p - start );
                }
             else if ( inHead6 )
                {
-               head6Words.push_back( string( start, p - start ) );
-               words.push_back( string( start, p - start ) );
+               head6Words.emplace_back( start, p - start );
+               words.emplace_back( start, p - start );
                if ( inAnchor )
-                  curr_anchorText.push_back( string( start, p - start ) );
+                  curr_anchorText.emplace_back( start, p - start );
                }
             else if ( inAnchor )
                {
-               curr_anchorText.push_back( string( start, p - start ) );  
-               words.push_back( string( start, p - start ) );  
+               curr_anchorText.emplace_back( start, p - start );  
+               words.emplace_back( start, p - start );  
                }
             else
-               words.push_back( string( start, p - start ) );  
+               words.emplace_back( start, p - start );  
             if ( inBold )
                {
-               boldWords.push_back( string( start, p - start ) );
+               boldWords.emplace_back( start, p - start );
                }
             else if ( inItalic )
                {
-               italicWords.push_back( string( start, p - start ) );
+               italicWords.emplace_back( start, p - start );
                }
             }
          if ( p < end && *p == '<' ) 
