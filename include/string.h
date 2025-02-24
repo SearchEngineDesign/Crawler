@@ -4,7 +4,7 @@
 
 #pragma once
 #include <cstddef>   // for size_t
-#include <iostream>  // for ostream
+#include <ostream>  // for ostream
 
 class string
    {
@@ -39,6 +39,7 @@ class string
                {
                   m_data[i] = cstr[i];
                }
+               m_data[m_size] = '\0';
             }
             else
             {
@@ -49,6 +50,85 @@ class string
             }
          }
 
+
+      // string Literal / C string Constructor with length
+      // REQUIRES: Nothing
+      // MODIFIES: *this
+      // EFFECTS: Creates a string with length and equivalent contents to cstr
+      string( const char *cstr, size_t length )
+         {
+            if ( cstr )
+            {
+               m_size = length;
+               m_capacity = m_size + 1;
+               m_data = new char[ m_capacity ];
+               for ( size_t i = 0; i < m_size; ++i ) 
+               {
+                  m_data[ i ] = cstr[ i ];
+               }
+               m_data[ m_size ] = '\0';
+            }
+            else
+            {
+               m_size = 0;
+               m_capacity = 1;
+               m_data = new char[1];
+               m_data[0] = '\0';
+            }
+         }
+      
+
+      // Copy Constructor
+      // REQUIRES: Nothing
+      // MODIFIES: *this
+      // EFFECTS: Copy the contents of other to this
+      string(const string &other) 
+         {
+
+            m_size = other.m_size;
+            m_capacity = other.m_capacity;
+            m_data = new char[m_size + 1];
+            for ( int i = 0; i < m_size; i ++ )
+               {
+                  m_data[i] = other.m_data[i];
+               }
+            m_data[m_size] = '\0';
+
+         }
+
+      
+      // Copy Assignment Operator
+      // REQUIRES: Nothing
+      // MODIFIES: *this
+      // EFFECTS: Copy the contents of other to this
+      string &operator=(const string &other) 
+         {
+            if ( this != &other ) // not self-assignment
+               {
+                  delete[] m_data;
+
+                  m_size = other.m_size;
+                  m_capacity = other.m_capacity;
+                  m_data = new char[m_size + 1];
+                  for ( int i = 0; i < m_size; i ++ )
+                     {
+                        m_data[i] = other.m_data[i];
+                     }
+                  m_data[m_size] = '\0';
+               }
+            return *this;
+         }
+
+
+      // Destructor
+      // REQUIRES: Nothing
+      // MODIFIES: *this
+      // EFFECTS: release allocated memory
+      ~string() 
+         {
+            delete[] m_data;
+         }
+
       // Size
       // REQUIRES: Nothing
       // MODIFIES: Nothing
@@ -56,6 +136,15 @@ class string
       size_t size( ) const
          {
             return m_size;
+         }
+
+      // empty
+      // REQUIRES: Nothing
+      // MODIFIES: Nothing
+      // EFFECTS: Returns whether string is empty
+      bool empty( ) const
+         {
+            return m_size == 0 ? true : false;
          }
 
       // C string Conversion
@@ -237,14 +326,29 @@ class string
             return ( *this == other ) || ( *this > other );
          }
 
+      // Assign
+      // REQUIRES: Nothing
+      // MODIFIES: *this
+      // EFFECTS: assign the content of s to this string
+      void assign( const char *s, size_t count )
+         {
+            delete[] m_data;
+
+            m_size = count;
+            m_capacity = m_size + 1;
+            m_data = new char[ m_capacity ];
+            for ( int i = 0; i < m_size; i++ )
+               {
+                  m_data[i] = s[i];
+               }
+            m_data[ m_size ] = '\0';
+
+         }
+
    private:
       size_t m_size;
       size_t m_capacity;
       char *m_data;
    };
 
-std::ostream &operator<<( std::ostream &os, const string &s )
-   {
-      os << s.cstr();
-      return os;
-   }
+std::ostream &operator<<( std::ostream &os, const string &s );

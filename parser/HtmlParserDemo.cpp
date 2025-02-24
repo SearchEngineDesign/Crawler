@@ -11,7 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include "HtmlParser.h"
-using namespace std;
+
 
 enum class Options
    {
@@ -34,123 +34,123 @@ void PrintParse( HtmlParser &parser )
       case Options::PrintSimplePage:
          // Print a simplified page
 
-         cout << "<!DOCTYPE html>" << endl << "<html>" << endl;
+         std::cout << "<!DOCTYPE html>" << std::endl << "<html>" << std::endl;
          
-         cout << "<title>" << endl;
+         std::cout << "<title>" << std::endl;
          for ( auto w : parser.titleWords )
-            cout << w << " ";
-         cout << endl << "</title>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "</title>" << std::endl << std::endl;
 
-         cout << "<h>" << endl << "Headings" << endl << "</h>" << endl;
-         cout << "<h1>" << endl;
+         std::cout << "<h>" << std::endl << "Headings" << std::endl << "</h>" << std::endl;
+         std::cout << "<h1>" << std::endl;
          for ( auto w : parser.head1Words )
-            cout << w << " ";
-         cout << endl << "</h1>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "</h1>" << std::endl << std::endl;
 
-         cout << "<h2>" << endl;
+         std::cout << "<h2>" << std::endl;
          for ( auto w : parser.head2Words )
-            cout << w << " ";
-         cout << endl << "</h2>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "</h2>" << std::endl << std::endl;
 
-         cout << "<h3>" << endl;
+         std::cout << "<h3>" << std::endl;
          for ( auto w : parser.head3Words )
-            cout << w << " ";
-         cout << endl << "</h3>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "</h3>" << std::endl << std::endl;
 
-         cout << "<h4>" << endl;
+         std::cout << "<h4>" << std::endl;
          for ( auto w : parser.head4Words )
-            cout << w << " ";
-         cout << endl << "</h4>" << endl << endl;     
+            std::cout << w << " ";
+         std::cout << std::endl << "</h4>" << std::endl << std::endl;     
 
-         cout << "<h5>" << endl;
+         std::cout << "<h5>" << std::endl;
          for ( auto w : parser.head5Words )
-            cout << w << " ";
-         cout << endl << "</h5>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "</h5>" << std::endl << std::endl;
 
-         cout << "<h6>" << endl;
+         std::cout << "<h6>" << std::endl;
          for ( auto w : parser.head6Words )
-            cout << w << " ";
-         cout << endl << "</h6>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "</h6>" << std::endl << std::endl;
 
-         cout << "<body style=\"font-family:Verdana,Arial,Helvetica,sans-serif;font-size:0.9em\">"
-               << endl << "<h>" << endl << "Body text" << endl << "</h>" << endl;
+         std::cout << "<body style=\"font-family:Verdana,Arial,Helvetica,sans-serif;font-size:0.9em\">"
+               << std::endl << "<h>" << std::endl << "Body text" << std::endl << "</h>" << std::endl;
          
-         cout << "<p>" << endl;
+         std::cout << "<p>" << std::endl;
          for ( auto w : parser.words )
-            cout << w << " ";
-         cout << endl << "<p>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "<p>" << std::endl << std::endl;
 
-         cout << "<b>" << endl;
+         std::cout << "<b>" << std::endl;
          for ( auto w : parser.boldWords )
-            cout << w << " ";
-         cout << endl << "</b>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "</b>" << std::endl << std::endl;
 
-         cout << "<i>" << endl;
+         std::cout << "<i>" << std::endl;
          for ( auto w : parser.italicWords )
-            cout << w << " ";
-         cout << endl << "</i>" << endl << endl;
+            std::cout << w << " ";
+         std::cout << std::endl << "</i>" << std::endl << std::endl;
 
-         cout << "<base>" << endl << "Base = " << "<a href=\"" << parser.base <<
-            "\">" << parser.base << "</a>" << endl << "</base>" << endl << endl;
+         std::cout << "<base>" << std::endl << "Base = " << "<a href=\"" << parser.base <<
+            "\">" << parser.base << "</a>" << std::endl << "</base>" << std::endl << std::endl;
 
-         cout << "<h>" << endl << "Links" << endl << "</h>" << endl;
+         std::cout << "<h>" << std::endl << "Links" << std::endl << "</h>" << std::endl;
          for ( auto link : parser.links )
             {
-            cout << "<p>" << endl << "<a href=\"" << link.URL << "\">" << link.URL << "</a> ( " ;
+            std::cout << "<p>" << std::endl << "<a href=\"" << link.URL << "\">" << link.URL << "</a> ( " ;
             for ( auto w : link.anchorText )
-               cout << w << " ";
-            cout << ")" << endl << "</p>" <<  endl;
+               std::cout << w << " ";
+            std::cout << ")" << std::endl << "</p>" <<  std::endl;
             }
 
-         cout << "</body>" << endl << "</html>" << endl;
+         std::cout << "</body>" << std::endl << "</html>" << std::endl;
          break;
 
       case Options::PrintWords:
          for ( auto w : parser.words )
-            cout << w << endl;
+            std::cout << w << std::endl;
          break;
 
       case Options::PrintTitleWords:
          for ( auto w : parser.titleWords )
-            cout << w << endl;
+            std::cout << w << std::endl;
          break;
 
       case Options::PrintLinks:
          for ( auto link : parser.links )
             {
-            cout << link.URL << " ( ";
+            std::cout << link.URL << " ( ";
             for ( auto w : link.anchorText )
-               cout << w << " ";
-            cout << ")" << endl;
+               std::cout << w << " ";
+            std::cout << ")" << std::endl;
             }
          break;
 
       case Options::PrintBase:
-         cout << parser.base << endl;
+         std::cout << parser.base << std::endl;
       
       case Options::PrintHead:
          for ( auto w : parser.head1Words )
-            cout << w << endl;
+            std::cout << w << std::endl;
          for ( auto w : parser.head2Words )
-            cout << w << endl;
+            std::cout << w << std::endl;
          for ( auto w : parser.head3Words )
-            cout << w << endl;
+            std::cout << w << std::endl;
          for ( auto w : parser.head4Words )
-            cout << w << endl;
+            std::cout << w << std::endl;
          for ( auto w : parser.head5Words )
-            cout << w << endl;
+            std::cout << w << std::endl;
          for ( auto w : parser.head6Words )
-            cout << w << endl;
+            std::cout << w << std::endl;
          break;
 
       case Options::PrintBold:
          for ( auto w : parser.boldWords )
-            cout << w << endl;
+            std::cout << w << std::endl;
          break;
       
       case Options::PrintItalic:
          for ( auto w : parser.italicWords )
-            cout << w << endl;
+            std::cout << w << std::endl;
          break;
       }
    }
@@ -163,7 +163,7 @@ char *ReadFile( char *filename, size_t &fileSize )
 
    // Attempt to Create an istream and seek to the end
    // to get the size.
-   ifstream ifs( filename, ios::ate | ios::binary );
+   std::ifstream ifs( filename, std::ios::ate | std::ios::binary );
    if ( !ifs.is_open( ) )
       return nullptr;
    fileSize = ifs.tellg( );
@@ -219,19 +219,19 @@ int main( int argc, char **argv )
    {
    if ( !( argc == 2 || argc == 3 && ValidOption( argv[ 1 ] ) ) )
       {
-      cout << "Usage:  HtmlParser [wtab] filename" << endl <<
-              endl <<
-              "By default, prints a simplified HTML page.  Options allow" << endl <<
-              "for only a section of the content to be printed.  Only one" << endl <<
-              "wtab option allowed at a time." << endl <<
-              endl <<
-              "   w  List the words, one per line." << endl <<
-              "   t  List the title words, one per line." << endl << 
-              "   a  List the links as URL( anchor text ), one per line." << endl <<
-              "   b  Print any base that was found." << endl <<
-              "   h  List the heading words, one per line." << endl <<
-              "   d  List the bold (strong) words, one per line." << endl <<
-              "   i  List the italic (emphasis) words, one per line." << endl;
+      std::cout << "Usage:  HtmlParser [wtab] filename" << std::endl <<
+              std::endl <<
+              "By default, prints a simplified HTML page.  Options allow" << std::endl <<
+              "for only a section of the content to be printed.  Only one" << std::endl <<
+              "wtab option allowed at a time." << std::endl <<
+              std::endl <<
+              "   w  List the words, one per line." << std::endl <<
+              "   t  List the title words, one per line." << std::endl << 
+              "   a  List the links as URL( anchor text ), one per line." << std::endl <<
+              "   b  Print any base that was found." << std::endl <<
+              "   h  List the heading words, one per line." << std::endl <<
+              "   d  List the bold (strong) words, one per line." << std::endl <<
+              "   i  List the italic (emphasis) words, one per line." << std::endl;
       exit( 1 );
       }
 
@@ -239,7 +239,7 @@ int main( int argc, char **argv )
    char *buffer = ReadFile( argv[ 1 + ( argc == 3 ) ], fileSize );
    if ( !buffer )
       {
-      cerr << "Could not open the file." << endl;
+      std::cerr << "Could not open the file." << std::endl;
       exit( 1 );
       }
 

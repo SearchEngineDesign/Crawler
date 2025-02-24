@@ -6,9 +6,11 @@
 
 #include "HtmlParser.h"
 #include "../include/vector.h"
+// #include <vector>
 #include "../include/string.h"
 #include <iostream>
-using namespace std;
+#include <cstring>
+
 // vector< string > words, titleWords;
 // vector< Link > links;
 // string base;

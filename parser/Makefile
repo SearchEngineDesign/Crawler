@@ -37,8 +37,8 @@ test: HtmlParserDemo NYTimes.html
 	./HtmlParserDemo b NYTimes.html > Base.txt
 	diff -B Base.correct.txt Base.txt 
 
-HtmlParserDemo: HtmlTags.h HtmlTags.cpp HtmlParser.h HtmlParser.cpp HtmlParserDemo.cpp
-	$(CXX) $(CXXFLAGS) -o HtmlParserDemo HtmlParserDemo.cpp HtmlTags.cpp HtmlParser.cpp
+HtmlParserDemo: HtmlTags.h HtmlTags.cpp HtmlParser.h HtmlParser.cpp HtmlParserDemo.cpp string.cpp
+	$(CXX) $(CXXFLAGS) -o HtmlParserDemo HtmlParserDemo.cpp HtmlTags.cpp HtmlParser.cpp string.cpp
 
 clean:
 	rm -f HtmlParserDemo TitleWords.txt Words.txt Links.txt Base.txt HYT.txt Bold.txt Italic.txt
