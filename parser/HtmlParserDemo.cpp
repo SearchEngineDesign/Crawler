@@ -12,7 +12,6 @@
 #include <fstream>
 #include "HtmlParser.h"
 
-
 enum class Options
    {
    PrintSimplePage,

@@ -76,6 +76,8 @@ class Link
       string URL;
       vector< string > anchorText;
 
+      Link() : URL(""), anchorText() { }
+
       Link( string URL ) : URL( URL )
          {
          }

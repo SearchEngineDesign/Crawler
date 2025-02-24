@@ -213,7 +213,7 @@ template<typename T>
       // MODIFIES: this, size( ), capacity( )
       // EFFECTS: Appends the element x to the vector, allocating
       //    additional space if neccesary
-      void pushBack( const T &x )
+      void push_back( const T &x )
          {
             if (this->vecSize == this->vecCapacity) {
                if ( this->vecCapacity != 0 )
@@ -275,6 +275,33 @@ template<typename T>
       const T* end( ) const
          {
             return arr + vecSize;
+         }
+      
+      T& back() const
+         {
+            if (vecSize == 0)
+               throw std::runtime_error("back on empty vector");
+            return arr[vecSize - 1];
+         }
+      
+      T& front() const
+         {
+            if (vecSize == 0)
+               throw std::runtime_error("front on empty vector");
+            return arr[0];
+         }
+      
+      bool empty() const
+         {
+            return vecSize == 0;
+         }
+      
+      void clear()
+         {
+            delete[] arr;  
+            vecSize = 0;
+            vecCapacity = 0;
+            arr = nullptr;
          }
 
    private:
