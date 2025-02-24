@@ -98,16 +98,10 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       returnCode = 1;
       goto Cleanup;
       }
-   int bytes, oldcount;
-   oldcount = 0;
+   int bytes;
    pageSize = 0;
    while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0) {
       pageSize += bytes;
-      // for debug 
-      for (int i = oldcount; i < pageSize; i++) {
-         std::cout << buffer[i];
-      }
-      oldcount += bytes;
    }
 
    // Close the socket and free the address info structure.

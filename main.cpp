@@ -2,55 +2,45 @@
 #include "parser/HtmlParser.h"
 #include <sys/socket.h>
 #include <unistd.h>
+#include <thread>
+#include <condition_variable>
+
+char buffer[2000000];
+size_t pageSize = 0;
+std::mutex bufLock;
+std::condition_variable cv;
+bool finishedParse = false;
+
+void crawlLoop(ParsedUrl purl) {
+   {
+   std::lock_guard<std::mutex> lk(bufLock);
+   crawl(purl, buffer, pageSize);
+   finishedParse = true;
+   }
+}
+
+void parseLoop() {
+   {
+   std::unique_lock<std::mutex> lk(bufLock);
+   cv.wait(lk, []{ return finishedParse; });
+   HtmlParser parser( buffer, pageSize );
+   for (auto i : parser.links) 
+      std::cout << i.URL << std::endl;
+   finishedParse = false;
+   }
+}
 
 int main(int argc, char* argv[]) {
    if (argc != 2) {
       perror("Usage: ./LinuxGetSsl [url]");
       return 1;
    }
-
-   int sockets[2];
-
-   if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets) == -1) {
-   perror("socketpair");
-   return 1;
-   }
-
-   pid_t pid = fork();
-   if (pid == -1) {
-   perror("fork");
-   return 1;
-   }
-
-   if (pid == 0) {
-      close(sockets[0]); // Close the reading end
-
-      std::string url = argv[1];
-      char buffer[2000000]; //don't use a buffer! write to a mapped file or other data structure
-      size_t pageSize;
-      ParsedUrl purl(url);
-      crawl(purl, buffer, pageSize);
-      send(sockets[1], &pageSize, sizeof(size_t), 0);
-      send(sockets[1], buffer, strlen(buffer), 0);
-      close(sockets[1]);
-   } else {
-      // Parent process
-      close(sockets[1]); // Close the writing end
-      size_t pageSize;
-      if (recv(sockets[0], &pageSize, sizeof(size_t), 0) > 0) {
-         char buffer[pageSize];
-         size_t bytes, bytes_received = 0;
-         while ((bytes = recv(sockets[0], buffer + bytes_received, sizeof(buffer), 0)) > 0) {
-            bytes_received += bytes;
-         }
-         HtmlParser parser( buffer, pageSize );
-         for (auto i : parser.links) 
-            std::cout << i.URL << std::endl;
-         close(sockets[0]);
-      }
-      
-   }
    
+   std::thread t1Crawler(crawlLoop, ParsedUrl(argv[1]));
+   std::thread t2Parser(parseLoop);
+
+   t1Crawler.join();
+   t2Parser.join();
 
    return 0;
 }
