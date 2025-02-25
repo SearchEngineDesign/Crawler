@@ -66,16 +66,17 @@ private:
 public:
    void addNewUrl(const std::string & urlName) {
       if (seen.find(urlName) == seen.end()) {
-         // TODO: priority?
-         ParsedUrl url(urlName);
-         urlQueue.push(url);
+        // TODO: priority?
+        ParsedUrl url(urlName);
+        urlQueue.push(url);
+        addSeenUrl(urlName);
       }
    }
 
    ParsedUrl getNextUrl() {
       if (urlQueue.empty()) {
-         ParsedUrl empty("");
-         return empty;
+        ParsedUrl empty("");
+        return empty;
       }
       ParsedUrl nextUrl = urlQueue.front();
       urlQueue.pop();
@@ -85,6 +86,10 @@ public:
    void addSeenUrl(const std::string & urlName) {
       seen.insert(urlName);
    }
+
+    bool empty() {
+        return urlQueue.empty();
+    }
 
    size_t getQueueSize() {
       return urlQueue.size();
