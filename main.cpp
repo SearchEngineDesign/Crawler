@@ -9,7 +9,7 @@ char buffer[2000000];
 size_t pageSize = 0;
 std::mutex bufLock;
 std::condition_variable cv;
-bool finishedParse = false;
+bool bufferInUse = false;
 UrlFrontier frontier;
 
 void crawlLoop() {
@@ -18,8 +18,9 @@ void crawlLoop() {
       //std::cout << cur.urlName << std::endl;
       {
       std::unique_lock<std::mutex> lk(bufLock);
+      cv.wait(lk, []{ return !bufferInUse; });
       crawl(cur, buffer, pageSize);
-      finishedParse = true;
+      bufferInUse = true;
       cv.notify_one();
       }
    }
@@ -29,13 +30,17 @@ void parseLoop() {
    //while(!frontier.empty()) {
       {
       std::unique_lock<std::mutex> lk(bufLock);
-      cv.wait(lk, []{ return finishedParse; });
+      cv.wait(lk, []{ return bufferInUse; });
       HtmlParser parser( buffer, pageSize );
-      for (auto i : parser.links) 
-         std::cout << i.URL << std::endl;
-         //frontier.addNewUrl(i.URL);
-      finishedParse = false;
+      for (int i = 0; i < pageSize; i++) {
+         std::cout << buffer[i];
       }
+      bufferInUse = false;
+      cv.notify_one();
+      }
+      
+      //for (auto i : parser.links) 
+         //frontier.addNewUrl(i.URL);
    //}
 }
 

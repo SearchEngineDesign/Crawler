@@ -11,7 +11,8 @@
 int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    {
    int returnCode = 0;
-   bool headerEnded = false;
+   int bytes;
+   std::string concatStr = (url.Service + "://" + url.Host + url.Path + '\n');
    
    //GET Message construction
    std::string path = url.Path;
@@ -98,8 +99,8 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       returnCode = 1;
       goto Cleanup;
       }
-   int bytes;
-   pageSize = 0;
+   strcpy(buffer, concatStr.c_str());
+   pageSize = concatStr.length();
    while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0) {
       pageSize += bytes;
    }
