@@ -242,6 +242,24 @@ template<typename T>
          }
 
       // REQUIRES: Nothing
+      // MODIFIES: vecSize
+      // EFFECTS: Resets vector's size.
+      void clear( )
+         {
+            vecSize = 0;
+         }
+
+      // REQUIRES: Nothing
+      // MODIFIES: Nothing
+      // EFFECTS: Returns true if the vector is empty, false otherwise
+      bool empty( )
+         {
+            if (this->vecSize == 0)
+               return true;
+            return false;
+         }
+
+      // REQUIRES: Nothing
       // MODIFIES: Allows mutable access to the vector's contents
       // EFFECTS: Returns a mutable random access iterator to the 
       //    first element of the vector
@@ -257,6 +275,15 @@ template<typename T>
       T* end( )
          {
             return arr + vecSize;
+         }
+
+      // REQUIRES: Nothing
+      // MODIFIES: Allows mutable access to the vector's contents
+      // EFFECTS: Returns a mutable random access iterator to 
+      //    the last valid element of the vector
+      T& back( )
+         {
+            return &arr[vecSize - 1];
          }
 
       // REQUIRES: Nothing

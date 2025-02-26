@@ -1,6 +1,7 @@
 // HtmlTags.h
 
 #pragma once
+#include <cstddef>
 
 // This header defines an alpha sorted array of the HTML tags recognized
 // along with the desired action.  The list of possible names is taken from

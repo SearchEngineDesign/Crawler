@@ -58,6 +58,16 @@ class string
             return m_size;
          }
 
+      // REQUIRES: Nothing
+      // MODIFIES: Nothing
+      // EFFECTS: Returns true if the string is empty, false otherwise
+      bool empty( )
+         {
+            if (this->m_size == 0)
+               return true;
+            return false;
+         }
+
       // C string Conversion
       // REQUIRES: Nothing
       // MODIFIES: Nothing

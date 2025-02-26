@@ -3,7 +3,6 @@
 #include <cassert>
 #include <iostream> 
 #include "HtmlTags.h"
-using namespace std;
 // name points to beginning of the possible HTML tag name.
 // nameEnd points to one past last character.
 // Comparison is case-insensitive.
