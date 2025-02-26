@@ -6,14 +6,9 @@
 
 #include "HtmlParser.h"
 #include "../include/vector.h"
-// #include <vector>
 #include "../include/string.h"
 #include <iostream>
 #include <cstring>
-
-// vector< string > words, titleWords;
-// vector< Link > links;
-// string base;
 
 string HtmlParser::complete_link(string link, string base_url)
 {

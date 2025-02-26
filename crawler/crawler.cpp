@@ -1,12 +1,6 @@
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include "frontier.h"
-#include <iostream>
+// crawler.cpp
+
+#include "crawler.h"
 
 int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    {

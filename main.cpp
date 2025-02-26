@@ -1,9 +1,10 @@
-#include "crawler/LinuxGetSsl.h"
+#include "crawler/crawler.h"
 #include "parser/HtmlParser.h"
 #include <sys/socket.h>
 #include <unistd.h>
 #include <thread>
 #include <condition_variable>
+#include <iostream>
 
 char buffer[2000000];
 size_t pageSize = 0;
@@ -32,15 +33,13 @@ void parseLoop() {
       std::unique_lock<std::mutex> lk(bufLock);
       cv.wait(lk, []{ return bufferInUse; });
       HtmlParser parser( buffer, pageSize );
-      for (int i = 0; i < pageSize; i++) {
+      //for (auto i : parser.links) 
+         //frontier.addNewUrl(i.URL);
+      for (int i = 0; i < pageSize; i++)
          std::cout << buffer[i];
-      }
       bufferInUse = false;
       cv.notify_one();
       }
-      
-      //for (auto i : parser.links) 
-         //frontier.addNewUrl(i.URL);
    //}
 }
 
