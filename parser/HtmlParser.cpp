@@ -5,14 +5,15 @@
 // HtmlParser.h, you may do it here.
 
 #include "HtmlParser.h"
-#include <vector>
-#include <string>
-#include <cstring>
+#include "../include/vector.h"
+// #include <vector>
+#include "../include/string.h"
 #include <iostream>
-using namespace std;
-// std::vector< std::string > words, titleWords;
-// std::vector< Link > links;
-// std::string base;
+#include <cstring>
+
+// vector< string > words, titleWords;
+// vector< Link > links;
+// string base;
 
 HtmlParser::HtmlParser( const char *buffer, size_t length )
    {
@@ -136,7 +137,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                      p++;  
                      }
                   if ( !embed_url.empty() )
-                     links.emplace_back( url );  
+                     links.push_back( url );  
                   break;  
                   }
                case DesiredAction::Anchor:
@@ -215,14 +216,14 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !titleWords.empty() )
                            titleWords.back() += word;  
                         else 
-                           titleWords.emplace_back( word );  
+                           titleWords.push_back( word );  
 
                         if ( inAnchor ) 
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;  
                            else
-                              curr_anchorText.emplace_back( word );  
+                              curr_anchorText.push_back( word );  
                            }
                         }
                      else if ( inHead1 )
@@ -230,17 +231,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head1Words.empty() )
                            head1Words.back() += word;
                         else
-                           head1Words.emplace_back( word );
+                           head1Words.push_back( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.emplace_back( word );
+                           words.push_back( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.emplace_back( word );
+                              curr_anchorText.push_back( word );
                            }
                         }
                      else if ( inHead2 )
@@ -248,17 +249,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head2Words.empty() )
                            head2Words.back() += word;
                         else
-                           head2Words.emplace_back( word );
+                           head2Words.push_back( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.emplace_back( word );
+                           words.push_back( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.emplace_back( word );
+                              curr_anchorText.push_back( word );
                            }
                         }
                      else if ( inHead3 )
@@ -266,17 +267,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head3Words.empty() )
                            head3Words.back() += word;
                         else
-                           head3Words.emplace_back( word );
+                           head3Words.push_back( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.emplace_back( word );
+                           words.push_back( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.emplace_back( word );
+                              curr_anchorText.push_back( word );
                            }
                         }
                      else if ( inHead4 )
@@ -284,17 +285,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head4Words.empty() )
                            head4Words.back() += word;
                         else
-                           head4Words.emplace_back( word );
+                           head4Words.push_back( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.emplace_back( word );
+                           words.push_back( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.emplace_back( word );
+                              curr_anchorText.push_back( word );
                            }
                         }
                      else if ( inHead5 )
@@ -302,17 +303,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head5Words.empty() )
                            head5Words.back() += word;
                         else
-                           head5Words.emplace_back( word );
+                           head5Words.push_back( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.emplace_back( word );
+                           words.push_back( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.emplace_back( word );
+                              curr_anchorText.push_back( word );
                            }
                         }
                      else if ( inHead6 )
@@ -320,17 +321,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head6Words.empty() )
                            head6Words.back() += word;
                         else
-                           head6Words.emplace_back( word );
+                           head6Words.push_back( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.emplace_back( word );
+                           words.push_back( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.emplace_back( word );
+                              curr_anchorText.push_back( word );
                            }
                         }
                      else if ( inAnchor )
@@ -342,8 +343,8 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                            } 
                         else
                            {
-                           curr_anchorText.emplace_back( word );  
-                           words.emplace_back( word );  
+                           curr_anchorText.push_back( word );  
+                           words.push_back( word );  
                            }
                         }
                      else
@@ -351,21 +352,21 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1) ) ) 
                            words.back() += word;  
                         else 
-                           words.emplace_back( word );  
+                           words.push_back( word );  
                         }
                      if ( inBold )
                         {
                         if ( !isspace( *( start - 1 ) ) && !boldWords.empty() )
                            boldWords.back() += word;
                         else
-                           boldWords.emplace_back( word );
+                           boldWords.push_back( word );
                         }
                      else if ( inItalic )
                         {
                         if ( !isspace( *( start - 1 ) ) && !italicWords.empty() )
                            italicWords.back() += word;
                         else
-                           italicWords.emplace_back( word );
+                           italicWords.push_back( word );
                         }
                      continue;  
                      }
@@ -407,7 +408,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                head2Words.emplace_back( start, p - start );
                words.emplace_back( start, p - start );
                if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
+                  curr_anchorText.push_back( string( start, p - start )  );
                }
             else if ( inHead3 )
                {
