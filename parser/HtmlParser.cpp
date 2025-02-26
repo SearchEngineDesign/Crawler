@@ -65,7 +65,15 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
    string url;  
    vector< string > curr_anchorText;  
    const char *p = buffer;  
-   const char *end = buffer + length;  
+   const char *end = buffer + length; 
+
+   if ( *p == 'h' && *(p+1) == 't' && *(p+2) == 't' && *(p+3) == 'p' )
+   {
+      while ( *p != '\n' )
+         p++;
+      base = string( buffer, p - buffer - 1);
+      p++;
+   }
 
    while ( p < end )
       {

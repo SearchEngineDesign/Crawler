@@ -126,6 +126,7 @@ void PrintParse( HtmlParser &parser )
 
       case Options::PrintBase:
          std::cout << parser.base << std::endl;
+         break;
       
       case Options::PrintHead:
          for ( auto w : parser.head1Words )
