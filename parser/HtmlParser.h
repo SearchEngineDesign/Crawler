@@ -4,8 +4,9 @@
 #pragma once
 
 #include "../include/vector.h"
-#include "HtmlTags.h"
 #include "../include/string.h"
+#include <iostream>
+
 
 // This is a simple HTML parser class.  Given a text buffer containing
 // a presumed HTML page, the constructor will parse the text to create

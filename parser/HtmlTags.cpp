@@ -1,7 +1,3 @@
-#include <ctype.h>
-#include <cstring>
-#include <cassert>
-#include <iostream> 
 #include "HtmlTags.h"
 // name points to beginning of the possible HTML tag name.
 // nameEnd points to one past last character.

@@ -5,10 +5,7 @@
 // HtmlParser.h, you may do it here.
 
 #include "HtmlParser.h"
-#include "../include/vector.h"
-#include "../include/string.h"
-#include <iostream>
-#include <cstring>
+#include "HtmlTags.h"
 
 HtmlParser::HtmlParser( const char *buffer, size_t length )
    {
@@ -63,7 +60,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                      {
                      Link curr_link( url );  
                      links.pushBack( curr_link );  
-                     links.back()->anchorText = curr_anchorText;  
+                     links.back().anchorText = curr_anchorText;  
                      }
                   curr_anchorText.clear();  
                   }
@@ -218,7 +215,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;  
                            else
-                              curr_anchorText.push_back( word );  
+                              curr_anchorText.pushBack( word );  
                            }
                         }
                      else if ( inHead1 )
@@ -226,17 +223,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head1Words.empty() )
                            head1Words.back() += word;
                         else
-                           head1Words.push_back( word );
+                           head1Words.pushBack( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.push_back( word );
+                           words.pushBack( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.push_back( word );
+                              curr_anchorText.pushBack( word );
                            }
                         }
                      else if ( inHead2 )
@@ -244,17 +241,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head2Words.empty() )
                            head2Words.back() += word;
                         else
-                           head2Words.push_back( word );
+                           head2Words.pushBack( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.push_back( word );
+                           words.pushBack( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.push_back( word );
+                              curr_anchorText.pushBack( word );
                            }
                         }
                      else if ( inHead3 )
@@ -262,17 +259,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head3Words.empty() )
                            head3Words.back() += word;
                         else
-                           head3Words.push_back( word );
+                           head3Words.pushBack( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.push_back( word );
+                           words.pushBack( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.push_back( word );
+                              curr_anchorText.pushBack( word );
                            }
                         }
                      else if ( inHead4 )
@@ -280,17 +277,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head4Words.empty() )
                            head4Words.back() += word;
                         else
-                           head4Words.push_back( word );
+                           head4Words.pushBack( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.push_back( word );
+                           words.pushBack( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.push_back( word );
+                              curr_anchorText.pushBack( word );
                            }
                         }
                      else if ( inHead5 )
@@ -298,17 +295,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head5Words.empty() )
                            head5Words.back() += word;
                         else
-                           head5Words.push_back( word );
+                           head5Words.pushBack( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.push_back( word );
+                           words.pushBack( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.push_back( word );
+                              curr_anchorText.pushBack( word );
                            }
                         }
                      else if ( inHead6 )
@@ -316,17 +313,17 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !head6Words.empty() )
                            head6Words.back() += word;
                         else
-                           head6Words.push_back( word );
+                           head6Words.pushBack( word );
                         if ( !isspace( *( start - 1 ) ) && !words.empty() )
                            words.back() += word;
                         else
-                           words.push_back( word );
+                           words.pushBack( word );
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;
                            else
-                              curr_anchorText.push_back( word );
+                              curr_anchorText.pushBack( word );
                            }
                         }
                      else if ( inAnchor )
@@ -338,8 +335,8 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                            } 
                         else
                            {
-                           curr_anchorText.push_back( word );  
-                           words.push_back( word );  
+                           curr_anchorText.pushBack( word );  
+                           words.pushBack( word );  
                            }
                         }
                      else
@@ -347,21 +344,21 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1) ) ) 
                            words.back() += word;  
                         else 
-                           words.push_back( word );  
+                           words.pushBack( word );  
                         }
                      if ( inBold )
                         {
                         if ( !isspace( *( start - 1 ) ) && !boldWords.empty() )
                            boldWords.back() += word;
                         else
-                           boldWords.push_back( word );
+                           boldWords.pushBack( word );
                         }
                      else if ( inItalic )
                         {
                         if ( !isspace( *( start - 1 ) ) && !italicWords.empty() )
                            italicWords.back() += word;
                         else
-                           italicWords.push_back( word );
+                           italicWords.pushBack( word );
                         }
                      continue;  
                      }
@@ -385,68 +382,69 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
 
          if ( !isEmptyWord && !indiscard )
             {
+            string newWord = string( start, p - start );
             if ( inTitle )
                {
-               titleWords.emplace_back( start, p - start );  
+               titleWords.pushBack( newWord );  
                if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );  
+                  curr_anchorText.pushBack( newWord );  
                }
             else if ( inHead1 )
                {
-               head1Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
+               head1Words.pushBack( newWord );
+               words.pushBack( newWord );
                if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
+                  curr_anchorText.pushBack( newWord );
                }
             else if ( inHead2 )
                {
-               head2Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
+               head2Words.pushBack( newWord );
+               words.pushBack( newWord );
                if ( inAnchor )
-                  curr_anchorText.push_back( string( start, p - start )  );
+                  curr_anchorText.pushBack( newWord  );
                }
             else if ( inHead3 )
                {
-               head3Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
+               head3Words.pushBack( newWord );
+               words.pushBack( newWord );
                if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
+                  curr_anchorText.pushBack( newWord );
                }
             else if ( inHead4 )
                {
-               head4Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
+               head4Words.pushBack( newWord );
+               words.pushBack( newWord );
                if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
+                  curr_anchorText.pushBack( newWord );
                }
             else if ( inHead5 )
                {
-               head5Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
+               head5Words.pushBack( newWord );
+               words.pushBack( newWord );
                if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
+                  curr_anchorText.pushBack( newWord );
                }
             else if ( inHead6 )
                {
-               head6Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
+               head6Words.pushBack( newWord );
+               words.pushBack( newWord );
                if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
+                  curr_anchorText.pushBack( newWord );
                }
             else if ( inAnchor )
                {
-               curr_anchorText.emplace_back( start, p - start );  
-               words.emplace_back( start, p - start );  
+               curr_anchorText.pushBack( newWord );  
+               words.pushBack( newWord );  
                }
             else
-               words.emplace_back( start, p - start );  
+               words.pushBack( newWord );  
             if ( inBold )
                {
-               boldWords.emplace_back( start, p - start );
+               boldWords.pushBack( newWord );
                }
             else if ( inItalic )
                {
-               italicWords.emplace_back( start, p - start );
+               italicWords.pushBack( newWord );
                }
             }
          if ( p < end && *p == '<' ) 

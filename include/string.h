@@ -4,7 +4,6 @@
 
 
 #include <cstddef>   // for size_t
-#include <iostream>  // for ostream
 
 class string
    {
@@ -36,6 +35,31 @@ class string
                m_capacity = m_size + 1;
                m_data = new char[m_capacity];
                for ( size_t i = 0; i < m_size; ++i ) 
+               {
+                  m_data[i] = cstr[i];
+               }
+            }
+            else
+            {
+               m_size = 0;
+               m_capacity = 1;
+               m_data = new char[1];
+               m_data[0] = '\0';
+            }
+         }
+
+      // string Literal / C string Constructor
+      // REQUIRES: cstr is a null terminated C style string
+      // MODIFIES: *this
+      // EFFECTS: Creates a string with equivalent contents to cstr up to character len
+      string( const char *cstr, const size_t len )
+         {
+            if ( cstr )
+            {
+               m_size = len;
+               m_capacity = m_size + 1;
+               m_data = new char[m_capacity];
+               for ( size_t i = 0; i < len; ++i ) 
                {
                   m_data[i] = cstr[i];
                }
@@ -246,6 +270,28 @@ class string
          {
             return ( *this == other ) || ( *this > other );
          }
+      
+      // Assign Function
+      // REQUIRES: Nothing
+      // MODIFIES: m_data, m_size, m_capacity
+      // EFFECTS: Sets the string equal to cstr, terminating copy at len characters
+      void assign( const char *cstr, const size_t len ) {
+         if ( cstr && len > 0)
+            {
+               m_size = len;
+               m_capacity = m_size + 1;
+               for ( size_t i = 0; i < len; ++i ) 
+               {
+                  m_data[i] = cstr[i];
+               }
+            }
+            else
+            {
+               m_data[0] = '\0';
+               m_size = 0;
+               m_capacity = 1;
+            }
+      }
 
    private:
       size_t m_size;

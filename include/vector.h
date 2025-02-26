@@ -3,7 +3,7 @@
 // Starter file for a vector template
 #include <utility>
 #include <initializer_list>
-#include <iostream>
+#include <stdexcept>
 
 template<typename T>
    class vector
@@ -283,7 +283,7 @@ template<typename T>
       //    the last valid element of the vector
       T& back( )
          {
-            return &arr[vecSize - 1];
+            return arr[vecSize - 1];
          }
 
       // REQUIRES: Nothing
