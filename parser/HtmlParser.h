@@ -104,4 +104,5 @@ class HtmlParser
       // all the HTML tags and producing the list of words in body,
       // words in title, and links found on the page.
       HtmlParser(const char *buffer, size_t length);
+      string complete_link(string link, string base_url);
    };

@@ -15,6 +15,44 @@
 // vector< Link > links;
 // string base;
 
+string HtmlParser::complete_link(string link, string base_url)
+{
+   if (link.find("http"))
+   {
+      return link;
+   }
+   else
+   {
+      size_t count = 0;
+      for (int i = 0; i < link.size(); i++)
+      {
+         if (link[i] == '/')
+            count++;
+         else
+            break;
+      }
+
+      string slash = "/";
+      if (base_url[base_url.size() - 1] != '/')
+         base_url += slash;  
+
+      size_t last_slash_pos = base_url.size();
+
+      while ( count > 0 && last_slash_pos > 0 )
+      {
+         while ( last_slash_pos > 0 && base_url[last_slash_pos - 1] != '/' )
+            last_slash_pos--;
+         
+         if (last_slash_pos > 0)
+            base_url = base_url.substr(0, last_slash_pos - 1);
+         
+         count--;
+      }
+
+      return base_url + link;
+   }
+}
+
 HtmlParser::HtmlParser( const char *buffer, size_t length )
    {
    size_t i = 0;  
@@ -66,6 +104,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                   inAnchor = false;  
                   if ( !url.empty() )
                      {
+                     url = complete_link(url, base);
                      Link curr_link( url );  
                      links.push_back( curr_link );  
                      links.back().anchorText = curr_anchorText;  
@@ -137,7 +176,10 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                      p++;  
                      }
                   if ( !embed_url.empty() )
-                     links.push_back( url );  
+                     {
+                        url = complete_link(embed_url, base);
+                        links.push_back( url );
+                     }
                   break;  
                   }
                case DesiredAction::Anchor:
@@ -149,6 +191,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                            {
                            if ( !url.empty() )
                               {
+                              url = complete_link(url, base);
                               Link curr_link( url );  
                               links.push_back( curr_link );  
                               links.back().anchorText = curr_anchorText;  

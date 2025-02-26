@@ -3,6 +3,12 @@ CXXFLAGS = -std=c++11 -g -DLinux
 
 all: HtmlParserDemo
 
+example: HtmlParserDemo example.txt
+	./HtmlParserDemo example.txt > example_output.txt
+
+link: HtmlParserDemo example.txt
+	./HtmlParserDemo a example.txt > link_example.txt
+
 test1: HtmlParserDemo NYTimes.html
 	./HtmlParserDemo NYTimes.html > HYT.txt
 

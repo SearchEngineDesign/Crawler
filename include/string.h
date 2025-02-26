@@ -344,6 +344,64 @@ class string
             m_data[ m_size ] = '\0';
 
          }
+      
+      bool find( const char *s ) const
+         {
+            if (!s || !*s) return false;
+
+            size_t s_length = 0;
+            while (s[s_length] != '\0') 
+            {
+               ++s_length;
+            }
+
+            if (s_length > m_size) return false;
+
+            for (size_t i = 0; i <= m_size - s_length; ++i) {
+               size_t j = 0;
+               while (j < s_length && m_data[i + j] == s[j]) {
+                  ++j;
+               }
+               if (j == s_length) {
+                  return true; 
+               }
+            }
+            return false; 
+         }
+
+      // Substring
+      // REQUIRES: pos <= size() and count is a valid size
+      // MODIFIES: Nothing
+      // EFFECTS: Returns a substring starting at pos with length count
+      string substr(size_t pos, size_t count) const {
+         if (pos > m_size) {
+            return string();
+         }
+         if (pos + count > m_size) {
+            count = m_size - pos;
+         }
+         return string(m_data + pos, count);
+      }
+      // Overload the + operator
+      // REQUIRES: Nothing
+      // MODIFIES: Nothing
+      // EFFECTS: Returns a new string that is the concatenation of *this and other
+      string operator+(const string &other) const {
+         string result;
+         result.m_size = m_size + other.m_size;
+         result.m_capacity = result.m_size + 1;
+         result.m_data = new char[result.m_capacity];
+
+         for ( size_t i = 0; i < m_size; ++i )
+            result.m_data[i] = m_data[i];
+         
+         for ( size_t i = 0; i < other.m_size; ++i )
+            result.m_data[m_size + i] = other.m_data[i];
+         
+
+         result.m_data[result.m_size] = '\0';
+         return result;
+      }
 
    private:
       size_t m_size;
