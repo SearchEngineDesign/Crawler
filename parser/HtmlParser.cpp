@@ -12,39 +12,29 @@
 
 string HtmlParser::complete_link(string link, string base_url)
 {
-   if (link.find("http") != -1)
+   if (link.find("http://") == 0 || link.find("https://") == 0)
    {
       return link;
    }
    else
    {
-      size_t count = 0;
-      for (int i = 0; i < link.size(); i++)
-      {
-         if (link[i] == '/')
-            count++;
-         else
-            break;
+      size_t slashCount = 0;
+      while (link.at(0) == '/') {
+         link = link.substr(1, link.length() - 1); //remove first character (/)
+         slashCount++;
       }
-
-      string slash = "/";
-      if (base_url[base_url.size() - 1] != '/')
-         base_url += slash;  
-
-      size_t last_slash_pos = base_url.size();
-
-      while ( count > 0 && last_slash_pos > 0 )
-      {
-         while ( last_slash_pos > 0 && base_url[last_slash_pos - 1] != '/' )
-            last_slash_pos--;
-         
-         if (last_slash_pos > 0)
-            base_url = base_url.substr(0, last_slash_pos - 1);
-         
-         count--;
-      }
-
-      return base_url + link;
+      while (base_url.at(base_url.length() - 1) == '/')
+         base_url = base_url.substr(0, base_url.length() - 1); //remove last character (/)
+      switch (slashCount) {
+         case 0:
+            return base_url + "/" + link;
+         case 1:
+            return base_url + "/" + link;
+         case 2:
+            return string("https://") + link;
+         default:
+            return "";
+      }  
    }
 }
 
@@ -108,10 +98,11 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                   if ( !url.empty() )
                      {
                      url = complete_link(url, base);
-                     Link curr_link( url );  
-                     if (curr_link.URL.find("https") != -1)
+                     if (!url.empty()) {
+                        Link curr_link( url );  
                         links.push_back( curr_link );  
                         links.back().anchorText = curr_anchorText;  
+                     }
                      }
                   curr_anchorText.clear();  
                   }
@@ -182,7 +173,10 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                   if ( !embed_url.empty() )
                      {
                         url = complete_link(embed_url, base);
-                        links.push_back( url );
+                        if (url.find("http") != -1)
+                           links.push_back( url );
+                        else
+                           std::cout << "Mangled URL: " << url << std::endl;
                      }
                   break;  
                   }

@@ -15,10 +15,11 @@ void crawlLoop() {
    while(!frontier.empty()) {
       ParsedUrl cur = frontier.getNextUrl();
       std::cout << cur.urlName << std::endl;
-      crawler.crawl(cur, buffer, pageSize);
-      HtmlParser parser( buffer, pageSize );
-      for (auto i : parser.links)
-         frontier.addNewUrl(i.URL);
+      if (crawler.crawl(cur, buffer, pageSize) == 0) {
+         HtmlParser parser( buffer, pageSize );
+         for (auto i : parser.links)
+            frontier.addNewUrl(i.URL);
+      }
    }
 }
 

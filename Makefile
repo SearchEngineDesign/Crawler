@@ -5,13 +5,13 @@ OPENSSL_DIR = /opt/homebrew/opt/openssl@3
 INCLUDES = -I$(OPENSSL_DIR)/include
 LDFLAGS = -L$(OPENSSL_DIR)/lib
 
-all: crawler.exe
+all: crawlParse #LinuxGetUrl
 
-crawler.exe: main.cpp parser/HtmlParser.cpp parser/HtmlTags.cpp crawler/crawler.cpp include/string.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ $(LDFLAGS) -lssl -lcrypto -lz -o crawler.exe -g
+crawlParse: main.cpp parser/HtmlParser.cpp parser/HtmlTags.cpp crawler/crawler.cpp include/string.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ $(LDFLAGS) -lssl -lcrypto -lz -o crawlParse -g
 
 
 .PHONY: clean
 
 clean:
-	rm -f crawler.exe 
+	rm -f crawlParse 

@@ -8,15 +8,23 @@ Crawler::Crawler() {
    hints.ai_socktype = SOCK_STREAM;
    hints.ai_protocol = IPPROTO_TCP;
    sd = 0;
+   currentHost = "";
 }
 
 void Crawler::freeSSL() {
    if (ssl != nullptr) {
       SSL_shutdown( ssl );
       SSL_free( ssl );
+      close(sd);
    }
-   close(sd);
    currentHost = "";
+}
+
+bool verifySSL(SSL *ssl) {
+   if (!ssl) {
+        return false;
+    }
+    return SSL_is_init_finished(ssl);
 }
 
 int Crawler::setupConnection(string hostName) {
@@ -49,6 +57,7 @@ int Crawler::setupConnection(string hostName) {
    OpenSSL_add_all_algorithms();
    SSL_load_error_strings();
    SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
+   SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
 
    if (ctx == NULL) {
       std::cerr << "Couldn't initialize SSL context." << std::endl;
@@ -61,6 +70,7 @@ int Crawler::setupConnection(string hostName) {
       return 1;
    }
    SSL_set_tlsext_host_name(ssl, hostName.c_str());
+   
    
    SSL_set_fd(ssl, sd);
 
@@ -87,10 +97,14 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    string concatStr = url.Service + string("://") + url.Host + string("\n");
    string path = url.Path;
    
-   if (url.Host != currentHost) {
-      if (setupConnection(url.Host))
+   const char* route = url.Host.c_str();
+   hostent *host = gethostbyname(route);
+   if (string(host->h_name) != currentHost || !verifySSL(ssl)) {
+      std::cout << "flop" << std::endl;
+
+      if (setupConnection(url.Host) != 0)
          return 1;
-      currentHost = url.Host;
+      currentHost = host->h_name;
    }
 
    //GET Message construction
@@ -99,20 +113,20 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    
    string getMessage =
       string("GET ") + path + " HTTP/1.1\r\n"
-      "Host: " + currentHost + "\r\n"
+      "Host: " + route + "\r\n"
       "User-Agent: LinuxGetSsl/2.0 codefather@umich.edu (Linux)\r\n"
       "Accept: */*\r\n"
       "Accept-Encoding: identity\r\n"
       "Connection: close\r\n\r\n";
 
    if (SSL_write( ssl, getMessage.c_str(), getMessage.length() ) <= 0 ) {
-      std::cerr << "Failed to write over SSL to " << url.Host + url.Path << std::endl;
+      std::cerr << "Failed to write over SSL" << std::endl;
       freeSSL();
       return 1;
    }
    strcpy(buffer, concatStr.c_str());
    pageSize = concatStr.length();
-   while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0) {
+   while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0 && pageSize < 2000000) {
       pageSize += bytes;
    }
    
