@@ -20,7 +20,7 @@ class Crawler
         Crawler();
 
     private:
-        void setupConnection(string hostName);
+        int setupConnection(string hostName);
         void freeSSL();
         struct addrinfo *address, hints;
         string currentHost;

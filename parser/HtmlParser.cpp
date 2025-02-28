@@ -21,21 +21,21 @@ string HtmlParser::complete_link(string link, string base_url)
       size_t count = 0;
       for (int i = 0; i < link.size(); i++)
       {
-         if (link[i] == '/')
+         if (link.at(i) == '/')
             count++;
          else
             break;
       }
 
       string slash = "/";
-      if (base_url[base_url.size() - 1] != '/')
+      if (base_url.at(base_url.size() - 1) != '/')
          base_url += slash;  
 
       size_t last_slash_pos = base_url.size();
 
       while ( count > 0 && last_slash_pos > 0 )
       {
-         while ( last_slash_pos > 0 && base_url[last_slash_pos - 1] != '/' )
+         while ( last_slash_pos > 0 && base_url.at(last_slash_pos - 1) != '/' )
             last_slash_pos--;
          
          if (last_slash_pos > 0)
@@ -181,7 +181,10 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                   if ( !embed_url.empty() )
                      {
                         url = complete_link(embed_url, base);
-                        links.push_back( url );
+                        if (url.find("http") != -1)
+                           links.push_back( url );
+                        else
+                           std::cout << "Mangled URL: " << url << std::endl;
                      }
                   break;  
                   }
