@@ -1,4 +1,3 @@
-#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -11,3 +10,20 @@
 //Fetch the header + HTML of a site at location URL.
 //Store information in buffer and modify pagesize accordingly.
 int crawl ( ParsedUrl url, char *buffer, size_t &pageSize);
+
+class Crawler
+
+    {
+    public:
+        int crawl ( ParsedUrl url, char *buffer, size_t &pageSize);
+
+        Crawler();
+
+    private:
+        void setupConnection(string hostName);
+        void freeSSL();
+        struct addrinfo *address, hints;
+        string currentHost;
+        SSL *ssl; //ssl socket
+        int sd; //socket descriptor
+    };

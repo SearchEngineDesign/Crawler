@@ -94,11 +94,6 @@ class HtmlParser
       vector< string > head1Words, head2Words, head3Words, head4Words, head5Words, head6Words;
       vector< string > boldWords, italicWords;
 
-   private:
-      // Your code here.
-
-   public:
-
       // The constructor is given a buffer and length containing
       // presumed HTML.  It will parse the buffer, stripping out
       // all the HTML tags and producing the list of words in body,

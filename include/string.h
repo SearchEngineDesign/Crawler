@@ -96,6 +96,23 @@ class string
 
          }
 
+      // c_string converter
+      // REQUIRES: Nothing
+      // MODIFIES: Nothing
+      // EFFECTS: Returns m_data
+      const char *c_str() 
+         {
+            return m_data;
+         }
+
+      // Length member function
+      // REQUIRES: Nothing
+      // MODIFIES: Nothing
+      // EFFECTS: Returns m_length
+      size_t length() const
+         {
+            return m_size;
+         }
       
       // Copy Assignment Operator
       // REQUIRES: Nothing
@@ -208,6 +225,18 @@ class string
             }
             m_size += other.m_size;
             m_data[m_size] = '\0';
+         }
+      
+      string operator+( const string &other )
+         {
+            operator+=(other);
+            return *this;
+         }
+      
+      string operator+( const char *other )
+         {
+            operator+=(string(other));
+            return *this;
          }
 
       // Push Back
@@ -345,9 +374,13 @@ class string
 
          }
       
-      bool find( const char *s ) const
+      // find
+      // REQUIRES: Nothing
+      // MODIFIES: Nothing
+      // EFFECTS: Returns a the position of *s in the string. If *s is not in the string, returns -1.
+      int find( const char *s ) const
          {
-            if (!s || !*s) return false;
+            if (!s || !*s) return -1;
 
             size_t s_length = 0;
             while (s[s_length] != '\0') 
@@ -355,7 +388,7 @@ class string
                ++s_length;
             }
 
-            if (s_length > m_size) return false;
+            if (s_length > m_size) return -1;
 
             for (size_t i = 0; i <= m_size - s_length; ++i) {
                size_t j = 0;
@@ -363,10 +396,39 @@ class string
                   ++j;
                }
                if (j == s_length) {
-                  return true; 
+                  return i; 
                }
             }
-            return false; 
+            return -1; 
+         }
+
+      int find( const char *s, size_t pos ) const
+         {
+            if (!s || !*s) return -1;
+
+            size_t s_length = 0;
+            while (s[s_length] != '\0') 
+            {
+               ++s_length;
+            }
+
+            if (s_length > m_size || pos > m_size) return -1;
+
+            for (size_t i = pos; i <= m_size - s_length; ++i) {
+               size_t j = 0;
+               while (j < s_length && m_data[i + j] == s[j]) {
+                  ++j;
+               }
+               if (j == s_length) {
+                  return i; 
+               }
+            }
+            return -1; 
+         }
+
+      char at( size_t pos ) const 
+         {
+            return m_data[pos];
          }
 
       // Substring
@@ -381,6 +443,13 @@ class string
             count = m_size - pos;
          }
          return string(m_data + pos, count);
+      }
+
+      string substr(size_t pos) const {
+         if (pos > m_size) {
+            return string();
+         }
+         return string(m_data + pos, m_size-pos);
       }
       // Overload the + operator
       // REQUIRES: Nothing

@@ -12,7 +12,7 @@
 
 string HtmlParser::complete_link(string link, string base_url)
 {
-   if (link.find("http"))
+   if (link.find("http") != -1)
    {
       return link;
    }
@@ -66,7 +66,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
    {
       while ( *p != '\n' )
          p++;
-      base = string( buffer, p - buffer - 1);
+      base = string( buffer, p - buffer);
       p++;
    }
 

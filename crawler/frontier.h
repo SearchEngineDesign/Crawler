@@ -1,49 +1,52 @@
 #pragma once
 #include <queue>
 #include <unordered_map>
-#include <string>
-#include <string.h>
+#include "../include/string.h"
 #include <set>
 
 class ParsedUrl {
 public:
-    std::string urlName;
-    std::string Service, Host, Port, Path;
+    string urlName;
+    string Service, Host, Port, Path;
 
-    ParsedUrl(const std::string& url) {
+    ParsedUrl(const string& url) {
         urlName = url;
 
         size_t pos = 0;
-        size_t colonPos = url.find(':');
-        size_t slashPos = url.find('/', colonPos + 3);
+        const char *colon = ":";
+        const char *slash = "/";
+        int colonPos = url.find(colon);
+        int slashPos = url.find(slash, colonPos + 2);
 
-        if (colonPos != std::string::npos) {
+        if (colonPos != -1) {
             // Extract Service
             Service = url.substr(0, colonPos);
             pos = colonPos + 1;
 
             // Skip "://" if present
-            if (url[pos] == '/' && url[pos + 1] == '/') {
+            if (url.at(pos) == '/' && url.at(pos+1) == '/') {
                 pos += 2;
             }
 
             // Extract Host
-            size_t hostEnd = url.find_first_of(":/", pos);
-            
-                Host = url.substr(pos, hostEnd - pos);
-                pos = hostEnd;
+            int hostEnd = url.find(slash, pos);
+            hostEnd == -1 ? hostEnd = url.length() : hostEnd = hostEnd;
+            Host = url.substr(pos, hostEnd - pos);
+            pos += Host.length();
 
-                // Extract Port if present
-                if (url[pos] == ':') {
-                    pos++;
-                    size_t portEnd = url.find('/', pos);
-                    Port = url.substr(pos, portEnd - pos);
-                    pos = portEnd;
-                }
+            // Extract Port if present
+            if (url.at(pos) == ':') {
+                pos++;
+                int portEnd = url.find(slash, pos);
+                Port = url.substr(pos, portEnd - pos);
+                pos += portEnd;
+            }
 
             // Extract Path
-            if (pos != std::string::npos) {
-                Path = url.substr(pos);
+            if (pos < url.length()) {
+                Path = url.substr(pos, url.length() - pos);
+                if (Path == "/")
+                    Path = "";
             }
         } else {
             Host = url;
@@ -52,7 +55,7 @@ public:
     }
 
     ~ParsedUrl() {
-        // No manual memory management required with std::string
+        // No manual memory management required with string
     }
 };
 
@@ -61,10 +64,10 @@ class UrlFrontier {
 
 private:
    std::queue<ParsedUrl> urlQueue;
-   std::set<std::string> seen;
+   std::set<string> seen;
 
 public:
-   void addNewUrl(const std::string & urlName) {
+   void addNewUrl(const string & urlName) {
       if (seen.find(urlName) == seen.end()) {
         // TODO: priority?
         ParsedUrl url(urlName);
@@ -83,7 +86,7 @@ public:
       return nextUrl;
    }
 
-   void addSeenUrl(const std::string & urlName) {
+   void addSeenUrl(const string & urlName) {
       seen.insert(urlName);
    }
 

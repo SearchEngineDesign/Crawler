@@ -1,4 +1,4 @@
-#include "../include/string.h"
+#include "string.h"
 
 std::ostream &operator<<( std::ostream &os, const string &s )
    {

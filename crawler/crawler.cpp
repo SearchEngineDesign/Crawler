@@ -2,38 +2,26 @@
 
 #include "crawler.h"
 
-int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
-   {
-   int returnCode = 0;
-   int bytes;
-   std::string concatStr = (url.Service + "://" + url.Host + url.Path + '\n');
-   
-   //GET Message construction
-   std::string path = url.Path;
-   if (path[0] != '/')
-      path = "/" + path;
-   
-   std::string getMessage =
-      "GET " + path + " HTTP/1.1\r\n"
-      "Host: " + std::string(url.Host) + "\r\n"
-      "User-Agent: LinuxGetSsl/2.0 codefather@umich.edu (Linux)\r\n"
-      "Accept: */*\r\n"
-      "Accept-Encoding: identity\r\n"
-      "Connection: close\r\n\r\n";
-
-   // Get the host address.
-   struct addrinfo *address, hints;
+Crawler::Crawler() {
    memset(&hints, 0, sizeof(hints));
    hints.ai_family = AF_INET;
    hints.ai_socktype = SOCK_STREAM;
    hints.ai_protocol = IPPROTO_TCP;
-   
-   if (getaddrinfo(url.Host.c_str(), "443", &hints, &address) < 0) {
+   sd = 0;
+}
+
+void Crawler::freeSSL() {
+   SSL_shutdown( ssl );
+   SSL_free( ssl );
+   close(sd);
+}
+
+void Crawler::setupConnection(string hostName) {
+   if (getaddrinfo(hostName.c_str(), "443", &hints, &address) < 0) {
       std::cerr << "Address lookup failed." << std::endl;
       exit(1);
    }
 
-   int sd = 0;
    for (struct addrinfo *addr = address; addr != NULL; addr = addr->ai_next) {
       sd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
 
@@ -47,7 +35,7 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
 
    if (sd == -1) {
       std::cerr << "Couldn't connect to host." << std::endl;
-      return 1;
+      exit(1);
    }
    
    // Build an SSL layer and set it to read/write
@@ -61,15 +49,15 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
 
    if (ctx == NULL) {
       std::cerr << "Couldn't initialize SSL context." << std::endl;
-      return 1;
+      exit(1);
    }
 
-   SSL *ssl = SSL_new(ctx);
+   ssl = SSL_new(ctx);
    if (!ssl) {
       std::cerr << "SSL initialization failed." << std::endl;
-      return 1;
+      exit(1);
    }
-   SSL_set_tlsext_host_name(ssl, url.Host.c_str());
+   SSL_set_tlsext_host_name(ssl, hostName.c_str());
    
    SSL_set_fd(ssl, sd);
 
@@ -84,25 +72,43 @@ int crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
          std::cerr << "SSL_connect failed with error code: " << err << std::endl;
          std::cerr << "Error string: " << error_buffer << std::endl;
       }
-      returnCode = 1;
-      goto Cleanup; 
+      freeSSL();
+      exit(1);
    }
-   if (SSL_write( ssl, getMessage.c_str(), getMessage.length() ) <= 0 )
-      {
+}
+
+int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
+   {
+   int returnCode = 0;
+   int bytes;
+   string concatStr = url.Service + string("://") + url.Host + string("\n");
+   string path = url.Path;
+   //GET Message construction
+   if (path.at(0) != '/')
+      path = string("/") + path;
+   
+   string getMessage =
+      string("GET ") + path + " HTTP/1.1\r\n"
+      "Host: " + url.Host + "\r\n"
+      "User-Agent: LinuxGetSsl/2.0 codefather@umich.edu (Linux)\r\n"
+      "Accept: */*\r\n"
+      "Accept-Encoding: identity\r\n"
+      "Connection: close\r\n\r\n";
+   
+   if (url.Host != currentHost) {
+      setupConnection(url.Host);
+   }
+
+   if (SSL_write( ssl, getMessage.c_str(), getMessage.length() ) <= 0 ) {
       std::cerr << "Failed to write over SSL" << std::endl;
       returnCode = 1;
-      goto Cleanup;
-      }
+      freeSSL();
+   }
    strcpy(buffer, concatStr.c_str());
    pageSize = concatStr.length();
    while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0) {
       pageSize += bytes;
    }
-
-   // Close the socket and free the address info structure.
-   Cleanup:
-   SSL_shutdown( ssl );
-   SSL_free( ssl );
-   close(sd);
+   
    return returnCode;
    }
