@@ -109,8 +109,9 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                      {
                      url = complete_link(url, base);
                      Link curr_link( url );  
-                     links.push_back( curr_link );  
-                     links.back().anchorText = curr_anchorText;  
+                     if (curr_link.URL.find("https") != -1)
+                        links.push_back( curr_link );  
+                        links.back().anchorText = curr_anchorText;  
                      }
                   curr_anchorText.clear();  
                   }

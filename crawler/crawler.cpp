@@ -11,15 +11,18 @@ Crawler::Crawler() {
 }
 
 void Crawler::freeSSL() {
-   SSL_shutdown( ssl );
-   SSL_free( ssl );
+   if (ssl != nullptr) {
+      SSL_shutdown( ssl );
+      SSL_free( ssl );
+   }
    close(sd);
+   currentHost = "";
 }
 
-void Crawler::setupConnection(string hostName) {
+int Crawler::setupConnection(string hostName) {
    if (getaddrinfo(hostName.c_str(), "443", &hints, &address) < 0) {
       std::cerr << "Address lookup failed." << std::endl;
-      exit(1);
+      return 1;
    }
 
    for (struct addrinfo *addr = address; addr != NULL; addr = addr->ai_next) {
@@ -35,7 +38,7 @@ void Crawler::setupConnection(string hostName) {
 
    if (sd == -1) {
       std::cerr << "Couldn't connect to host." << std::endl;
-      exit(1);
+      return 1;
    }
    
    // Build an SSL layer and set it to read/write
@@ -49,13 +52,13 @@ void Crawler::setupConnection(string hostName) {
 
    if (ctx == NULL) {
       std::cerr << "Couldn't initialize SSL context." << std::endl;
-      exit(1);
+      return 1;
    }
 
    ssl = SSL_new(ctx);
    if (!ssl) {
       std::cerr << "SSL initialization failed." << std::endl;
-      exit(1);
+      return 1;
    }
    SSL_set_tlsext_host_name(ssl, hostName.c_str());
    
@@ -73,36 +76,39 @@ void Crawler::setupConnection(string hostName) {
          std::cerr << "Error string: " << error_buffer << std::endl;
       }
       freeSSL();
-      exit(1);
+      return 1;
    }
+   return 0;
 }
 
 int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    {
-   int returnCode = 0;
    int bytes;
    string concatStr = url.Service + string("://") + url.Host + string("\n");
    string path = url.Path;
+   
+   if (url.Host != currentHost) {
+      if (setupConnection(url.Host))
+         return 1;
+      currentHost = url.Host;
+   }
+
    //GET Message construction
    if (path.at(0) != '/')
       path = string("/") + path;
    
    string getMessage =
       string("GET ") + path + " HTTP/1.1\r\n"
-      "Host: " + url.Host + "\r\n"
+      "Host: " + currentHost + "\r\n"
       "User-Agent: LinuxGetSsl/2.0 codefather@umich.edu (Linux)\r\n"
       "Accept: */*\r\n"
       "Accept-Encoding: identity\r\n"
       "Connection: close\r\n\r\n";
-   
-   if (url.Host != currentHost) {
-      setupConnection(url.Host);
-   }
 
    if (SSL_write( ssl, getMessage.c_str(), getMessage.length() ) <= 0 ) {
-      std::cerr << "Failed to write over SSL" << std::endl;
-      returnCode = 1;
+      std::cerr << "Failed to write over SSL to " << url.Host + url.Path << std::endl;
       freeSSL();
+      return 1;
    }
    strcpy(buffer, concatStr.c_str());
    pageSize = concatStr.length();
@@ -110,5 +116,5 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       pageSize += bytes;
    }
    
-   return returnCode;
+   return 0;
    }

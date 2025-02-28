@@ -12,7 +12,7 @@ Crawler crawler;
 UrlFrontier frontier;
 
 void crawlLoop() {
-   while(1) {
+   while(!frontier.empty()) {
       ParsedUrl cur = frontier.getNextUrl();
       std::cout << cur.urlName << std::endl;
       crawler.crawl(cur, buffer, pageSize);
