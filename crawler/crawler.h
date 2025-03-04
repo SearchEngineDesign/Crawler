@@ -21,6 +21,7 @@ class Crawler
 
     private:
         int setupConnection(string hostName);
+        bool verifySSL();
         void freeSSL();
         struct addrinfo *address, hints;
         string currentHost;

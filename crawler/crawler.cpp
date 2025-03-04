@@ -20,11 +20,17 @@ void Crawler::freeSSL() {
    currentHost = "";
 }
 
-bool verifySSL(SSL *ssl) {
+bool Crawler::verifySSL() {
    if (!ssl) {
-        return false;
-    }
-    return SSL_is_init_finished(ssl);
+      return false;
+   }
+   int error = 0;
+   socklen_t len = sizeof(error);
+   int ret = getsockopt(sd, SOL_SOCKET, SO_ERROR, &error, &len);
+   if (ret == 0)
+      return true;
+   else
+      return false;
 }
 
 int Crawler::setupConnection(string hostName) {
@@ -99,13 +105,11 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    
    const char* route = url.Host.c_str();
    hostent *host = gethostbyname(route);
-   if (string(host->h_name) != currentHost || !verifySSL(ssl)) {
-      std::cout << "flop" << std::endl;
-
+   //if (string(host->h_name) != currentHost || !verifySSL()) {
       if (setupConnection(url.Host) != 0)
          return 1;
       currentHost = host->h_name;
-   }
+   //}
 
    //GET Message construction
    if (path.at(0) != '/')
