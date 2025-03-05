@@ -59,10 +59,8 @@ private:
 class Index {
 public:
     //Constructor should take in parsed HTML and add it to the index.
-    void addDocument(const char *buffer, size_t length);
+    void addDocument(HtmlParser &parser);
 private:
-    size_t count = 0;
-    string completeLink(string link, string base_url);
     HashBlob dictBlob;
     HashTable<string, PostingList> dict;
 

@@ -10,6 +10,20 @@
 #include <iostream>
 #include <cstring>
 
+void HtmlParser::appendWord(const string &word,
+                           vector< std::pair<string, size_t> > &vec, bool append) {
+   if (append) {
+      vec.back().first += word;
+   } else {
+      vec.push_back(std::make_pair(word, count));
+   }
+}
+
+void HtmlParser::appendWord(const char * ptr, long len,
+                           vector< std::pair<string, size_t> > &vec) {
+   vec.emplace_back(string(ptr, len), count);
+}
+
 string HtmlParser::complete_link(string link, string base_url)
 {
    if (link.find("http://") == 0 || link.find("https://") == 0)
@@ -44,9 +58,9 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
    bool inTitle = false;  
    bool indiscard = false;  
    bool inAnchor = false;
-   bool inHead1 = false, inHead2 = false, inHead3 = false;
-   bool inHead4 = false, inHead5 = false, inHead6 = false;
-   bool inBold = false, inItalic = false;
+   bool inHead = false;
+   bool inItalic = false;
+   bool inBold = false;
    string url;  
    vector< string > curr_anchorText;  
    const char *p = buffer;  
@@ -59,6 +73,8 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
       base = string( buffer, p - buffer);
       p++;
    }
+   while (*p != '<')
+      p++;
 
    while ( p < end )
       {
@@ -78,18 +94,8 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
             {
             if ( action == DesiredAction::Title )
                inTitle = false;  
-            else if ( action == DesiredAction::Head1 )
-               inHead1 = false;
-            else if ( action == DesiredAction::Head2 )
-               inHead2 = false;
-            else if ( action == DesiredAction::Head3 )
-               inHead3 = false;
-            else if ( action == DesiredAction::Head4 )
-               inHead4 = false;
-            else if ( action == DesiredAction::Head5 )
-               inHead5 = false;
-            else if ( action == DesiredAction::Head6 )
-               inHead6 = false;
+            else if ( action == DesiredAction::Head )
+               inHead = false;
             else if ( action == DesiredAction::Anchor )
                {
                if ( inAnchor )
@@ -175,8 +181,6 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         url = complete_link(embed_url, base);
                         if (url.find("http") != -1)
                            links.push_back( url );
-                        else
-                           std::cout << "Mangled URL: " << url << std::endl;
                      }
                   break;  
                   }
@@ -218,23 +222,8 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                   indiscard = true;  
                   break;  
 
-               case DesiredAction::Head1:
-                  inHead1 = true;
-                  break;
-               case DesiredAction::Head2:
-                  inHead2 = true;
-                  break;
-               case DesiredAction::Head3:
-                  inHead3 = true;
-                  break;
-               case DesiredAction::Head4:
-                  inHead4 = true;
-                  break;
-               case DesiredAction::Head5:
-                  inHead5 = true;
-                  break;
-               case DesiredAction::Head6:
-                  inHead6 = true;
+               case DesiredAction::Head:
+                  inHead = true;
                   break;
                case DesiredAction::Bold:
                   inBold = true;
@@ -255,9 +244,9 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                      if ( inTitle )
                         {
                         if ( !isspace( *( start - 1 ) ) && !titleWords.empty() )
-                           titleWords.back() += word;  
+                           appendWord(word, titleWords, true);
                         else 
-                           titleWords.push_back( word );  
+                           appendWord(word, titleWords, false);
 
                         if ( inAnchor ) 
                            {
@@ -267,106 +256,16 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                               curr_anchorText.push_back( word );  
                            }
                         }
-                     else if ( inHead1 )
+                     else if ( inHead )
                         {
-                        if ( !isspace( *( start - 1 ) ) && !head1Words.empty() )
-                           head1Words.back() += word;
+                        if ( !isspace( *( start - 1 ) ) && !headWords.empty() )
+                           appendWord(word, headWords, true);
                         else
-                           head1Words.push_back( word );
-                        if ( !isspace( *( start - 1 ) ) && !words.empty() )
-                           words.back() += word;
+                           appendWord(word, headWords, false);
+                        if ( !isspace( *( start - 1 ) ) && !bodyWords.empty() )
+                           appendWord(word, bodyWords, true);
                         else
-                           words.push_back( word );
-                        if ( inAnchor )
-                           {
-                           if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
-                              curr_anchorText.back() += word;
-                           else
-                              curr_anchorText.push_back( word );
-                           }
-                        }
-                     else if ( inHead2 )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !head2Words.empty() )
-                           head2Words.back() += word;
-                        else
-                           head2Words.push_back( word );
-                        if ( !isspace( *( start - 1 ) ) && !words.empty() )
-                           words.back() += word;
-                        else
-                           words.push_back( word );
-                        if ( inAnchor )
-                           {
-                           if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
-                              curr_anchorText.back() += word;
-                           else
-                              curr_anchorText.push_back( word );
-                           }
-                        }
-                     else if ( inHead3 )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !head3Words.empty() )
-                           head3Words.back() += word;
-                        else
-                           head3Words.push_back( word );
-                        if ( !isspace( *( start - 1 ) ) && !words.empty() )
-                           words.back() += word;
-                        else
-                           words.push_back( word );
-                        if ( inAnchor )
-                           {
-                           if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
-                              curr_anchorText.back() += word;
-                           else
-                              curr_anchorText.push_back( word );
-                           }
-                        }
-                     else if ( inHead4 )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !head4Words.empty() )
-                           head4Words.back() += word;
-                        else
-                           head4Words.push_back( word );
-                        if ( !isspace( *( start - 1 ) ) && !words.empty() )
-                           words.back() += word;
-                        else
-                           words.push_back( word );
-                        if ( inAnchor )
-                           {
-                           if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
-                              curr_anchorText.back() += word;
-                           else
-                              curr_anchorText.push_back( word );
-                           }
-                        }
-                     else if ( inHead5 )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !head5Words.empty() )
-                           head5Words.back() += word;
-                        else
-                           head5Words.push_back( word );
-                        if ( !isspace( *( start - 1 ) ) && !words.empty() )
-                           words.back() += word;
-                        else
-                           words.push_back( word );
-                        if ( inAnchor )
-                           {
-                           if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
-                              curr_anchorText.back() += word;
-                           else
-                              curr_anchorText.push_back( word );
-                           }
-                        }
-                     else if ( inHead6 )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !head6Words.empty() )
-                           head6Words.back() += word;
-                        else
-                           head6Words.push_back( word );
-                        if ( !isspace( *( start - 1 ) ) && !words.empty() )
-                           words.back() += word;
-                        else
-                           words.push_back( word );
+                           appendWord(word, bodyWords, false);
                         if ( inAnchor )
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
@@ -380,34 +279,34 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                            {
                            curr_anchorText.back() += word;  
-                           words.back() += word;  
+                           appendWord(word, bodyWords, true); 
                            } 
                         else
                            {
                            curr_anchorText.push_back( word );  
-                           words.push_back( word );  
+                           appendWord(word, bodyWords, false);
                            }
                         }
                      else
                         {
                         if ( !isspace( *( start - 1) ) ) 
-                           words.back() += word;  
+                           appendWord(word, bodyWords, true);
                         else 
-                           words.push_back( word );  
+                           appendWord(word, bodyWords, false);
                         }
                      if ( inBold )
                         {
                         if ( !isspace( *( start - 1 ) ) && !boldWords.empty() )
-                           boldWords.back() += word;
+                           appendWord(word, boldWords, true);
                         else
-                           boldWords.push_back( word );
+                           appendWord(word, boldWords, false);
                         }
                      else if ( inItalic )
                         {
                         if ( !isspace( *( start - 1 ) ) && !italicWords.empty() )
-                           italicWords.back() += word;
+                           appendWord(word, italicWords, true);
                         else
-                           italicWords.push_back( word );
+                           appendWord(word, italicWords, false);
                         }
                      continue;  
                      }
@@ -431,68 +330,36 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
 
          if ( !isEmptyWord && !indiscard )
             {
+            count++;
             if ( inTitle )
                {
-               titleWords.emplace_back( start, p - start );  
+               appendWord(start, p - start, titleWords);
                if ( inAnchor )
                   curr_anchorText.emplace_back( start, p - start );  
                }
-            else if ( inHead1 )
+            else 
                {
-               head1Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
-               if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
+               appendWord(start, p - start, bodyWords);
+               if ( inHead )
+                  {
+                  appendWord(start, p - start, headWords);
+                  if ( inAnchor )
+                     curr_anchorText.emplace_back( start, p - start );
+                  }
+               else if ( inAnchor )
+                  {
+                  curr_anchorText.emplace_back( start, p - start );  
+                  }
                }
-            else if ( inHead2 )
-               {
-               head2Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
-               if ( inAnchor )
-                  curr_anchorText.push_back( string( start, p - start )  );
-               }
-            else if ( inHead3 )
-               {
-               head3Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
-               if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
-               }
-            else if ( inHead4 )
-               {
-               head4Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
-               if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
-               }
-            else if ( inHead5 )
-               {
-               head5Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
-               if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
-               }
-            else if ( inHead6 )
-               {
-               head6Words.emplace_back( start, p - start );
-               words.emplace_back( start, p - start );
-               if ( inAnchor )
-                  curr_anchorText.emplace_back( start, p - start );
-               }
-            else if ( inAnchor )
-               {
-               curr_anchorText.emplace_back( start, p - start );  
-               words.emplace_back( start, p - start );  
-               }
-            else
-               words.emplace_back( start, p - start );  
+
+               
             if ( inBold )
                {
-               boldWords.emplace_back( start, p - start );
+               appendWord(start, p - start, boldWords);
                }
             else if ( inItalic )
                {
-               italicWords.emplace_back( start, p - start );
+               appendWord(start, p - start, boldWords);
                }
             }
          if ( p < end && *p == '<' ) 

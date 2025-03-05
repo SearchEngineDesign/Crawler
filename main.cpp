@@ -17,6 +17,9 @@ void crawlLoop() {
       std::cout << cur.urlName << std::endl;
       if (crawler.crawl(cur, buffer, pageSize) == 0) {
          HtmlParser parser( buffer, pageSize );
+         for (auto i : parser.bodyWords) {
+            std::cout << i.first << ' ' << i.second << std::endl;
+         }
          for (auto i : parser.links)
             frontier.addNewUrl(i.URL);
       }

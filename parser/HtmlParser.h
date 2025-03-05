@@ -87,17 +87,19 @@ class Link
 class HtmlParser
    {
    public:
-
-      vector< string > words, titleWords;
+      vector< std::pair<string, size_t> > bodyWords, titleWords, headWords, boldWords, italicWords;
       vector< Link > links;
       string base;
-      vector< string > head1Words, head2Words, head3Words, head4Words, head5Words, head6Words;
-      vector< string > boldWords, italicWords;
 
       // The constructor is given a buffer and length containing
       // presumed HTML.  It will parse the buffer, stripping out
       // all the HTML tags and producing the list of words in body,
       // words in title, and links found on the page.
       HtmlParser(const char *buffer, size_t length);
+      
+   private:
+      void appendWord(const string &word, vector< std::pair<string, size_t> > &vec, bool append);
+      void appendWord(const char * ptr, long len, vector< std::pair<string, size_t> > &vec);
       string complete_link(string link, string base_url);
+      size_t count = 0;
    };
