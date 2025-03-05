@@ -34,8 +34,9 @@ struct Post {
 
 class PostingList {
 public:
-    void update(size_t delta);
-    void update(size_t delta, uint8_t style);
+    void update(size_t delta); //title token
+    void update(size_t delta, uint8_t style); //body token
+    void updateEOD(size_t delta, size_t index); //EOF token
 private:
 
     //Common header
@@ -60,6 +61,8 @@ class Index {
 public:
     //Constructor should take in parsed HTML and add it to the index.
     void addDocument(HtmlParser &parser);
+    vector<string> documents;
+    size_t wordCount = 0;
 private:
     HashBlob dictBlob;
     HashTable<string, PostingList> dict;
