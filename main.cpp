@@ -1,5 +1,6 @@
 #include "crawler/crawler.h"
 #include "parser/HtmlParser.h"
+#include "indexParser/index.h"
 #include <sys/socket.h>
 #include <unistd.h>
 #include <thread>
@@ -11,15 +12,15 @@ size_t pageSize = 0;
 Crawler crawler;
 UrlFrontier frontier;
 
+Index index;
+
 void crawlLoop() {
    while(!frontier.empty()) {
       ParsedUrl cur = frontier.getNextUrl();
       std::cout << cur.urlName << std::endl;
       if (crawler.crawl(cur, buffer, pageSize) == 0) {
          HtmlParser parser( buffer, pageSize );
-         for (auto i : parser.bodyWords) {
-            std::cout << i.first << ' ' << i.second << std::endl;
-         }
+         index.addDocument(parser);
          for (auto i : parser.links)
             frontier.addNewUrl(i.URL);
       }
