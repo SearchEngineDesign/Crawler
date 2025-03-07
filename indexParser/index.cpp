@@ -19,6 +19,9 @@ void Index::addDocument(HtmlParser &parser) {
 
    dict.Find(eodMarker)->value.appendEOD(parser.count + WordsInIndex, DocumentsInIndex);
    WordsInIndex += parser.count;
+   DocumentsInIndex += 1;
+   //LocationsInIndex += ?
+   //MaximumLocation += ?
    documents.push_back(parser.base);
 }
 
@@ -27,7 +30,7 @@ void PostingList::appendDelta(size_t delta) {
 }
 
 void PostingList::appendDelta(size_t delta, uint8_t style) {
-
+ 
 }
 
 void PostingList::appendEOD(size_t delta, size_t docIndex) {

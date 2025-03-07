@@ -37,6 +37,7 @@ class Post {
 public:
     virtual Location getLocation();
     virtual Attributes getAttributes(); 
+
 private:
     //Variable byte size char array, to be encoded in utf-8.
     //Structure: n bits to encode the offset + 2 bits to encode style (for word tokens)
@@ -80,6 +81,8 @@ public:
     DocumentsInIndex = 0, 
     LocationsInIndex = 0,
     MaximumLocation = 0;
+
+    Index() {}
 private:
     //HashBlob dictBlob;
     HashTable<string, PostingList> dict;
@@ -88,46 +91,6 @@ private:
     string anchorMarker = string("$");
     string urlMarker = string("#");
     string eodMarker = string("%");
-};
-
-class IndexInterface {
-private:
-    int fd;
-    Index *indexBlob;
-    struct stat fileInfo;
-
-    size_t FileSize( int f ) {
-        fstat( f, &fileInfo );
-        return fileInfo.st_size;
-    }
-
-public:
-
-    Index *getIndex( ) {
-        return indexBlob;
-    }
-
-    IndexInterface( const char *filename ) {
-
-        // Your code here.
-        fd = open(filename, O_RDWR); //open file
-        if (fd == -1) 
-            perror("open");
-
-        if (FileSize(fd) == -1) //get file size
-            perror("fstat");
-
-        indexBlob = reinterpret_cast<Index*>(mmap(nullptr, fileInfo.st_size, 
-                                    PROT_WRITE, MAP_SHARED, fd, 0)); //map bytes to 'blob'
-        if (index == MAP_FAILED)
-            perror("mmap");
-
-    }
-
-    ~IndexInterface( ) {
-        munmap(indexBlob, fileInfo.st_size);  //not sure if this should happen here or earlier
-        close(fd);                       //not sure if this should happen here or earlier
-    }
 };
 
 class ISR {

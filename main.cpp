@@ -16,7 +16,6 @@ Index *in;
 void crawlLoop() {
    while(!frontier.empty()) {
       ParsedUrl cur = frontier.getNextUrl();
-      std::cout << cur.urlName << std::endl;
       if (crawler.crawl(cur, buffer, pageSize) == 0) {
          HtmlParser parser( buffer, pageSize );
          in->addDocument(parser);
@@ -36,7 +35,8 @@ int main(int argc, char* argv[]) {
       return 1;
    }
    frontier.addNewUrl(argv[1]);
-   in = IndexInterface(argv[2]).getIndex();
+   //in = IndexInterface(argv[2]).getIndex();
+   in = new Index;
    
    std::thread t1Crawler(crawlLoop);
    std::thread t2Parser(parseLoop);
