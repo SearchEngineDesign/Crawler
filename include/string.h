@@ -426,9 +426,9 @@ class string
             return -1; 
          }
 
-      char at( size_t pos ) const 
+      char *at( size_t pos ) const 
          {
-            return m_data[pos];
+            return m_data + pos;
          }
 
       // Substring

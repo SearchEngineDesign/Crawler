@@ -24,7 +24,7 @@ public:
             pos = colonPos + 1;
 
             // Skip "://" if present
-            if (url.at(pos) == '/' && url.at(pos+1) == '/') {
+            if (*url.at(pos) == '/' && *url.at(pos+1) == '/') {
                 pos += 2;
             }
 
@@ -35,7 +35,7 @@ public:
             pos += Host.length();
 
             // Extract Port if present
-            if (url.at(pos) == ':') {
+            if (*url.at(pos) == ':') {
                 pos++;
                 int portEnd = url.find(slash, pos);
                 Port = url.substr(pos, portEnd - pos);

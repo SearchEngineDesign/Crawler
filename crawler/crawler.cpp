@@ -112,7 +112,7 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    //}
 
    //GET Message construction
-   if (path.at(0) != '/')
+   if (*path.at(0) != '/')
       path = string("/") + path;
    
    string getMessage =

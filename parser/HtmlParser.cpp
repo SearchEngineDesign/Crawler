@@ -12,7 +12,7 @@
 
 void HtmlParser::appendWord(const string &word,
                            vector< std::pair<string, size_t> > &vec, bool append) {
-   if (append) {
+   if (append && !vec.empty()) {
       vec.back().first += word;
    } else {
       vec.push_back(std::make_pair(word, count));
@@ -33,11 +33,11 @@ string HtmlParser::complete_link(string link, string base_url)
    else
    {
       size_t slashCount = 0;
-      while (link.at(0) == '/') {
+      while (*link.at(0) == '/') {
          link = link.substr(1, link.length() - 1); //remove first character (/)
          slashCount++;
       }
-      while (base_url.at(base_url.length() - 1) == '/')
+      while (*base_url.at(base_url.length() - 1) == '/')
          base_url = base_url.substr(0, base_url.length() - 1); //remove last character (/)
       switch (slashCount) {
          case 0:

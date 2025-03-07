@@ -98,13 +98,13 @@ template< typename Key, typename Value > class HashTable
       Tuple< Key, Value > *Find( const Key k, const Value initialValue )
          {
 
-            size_t index = hashbasic(&k[0], numberOfBuckets);
+            size_t index = hashbasic(k.at(0), numberOfBuckets);
             Bucket< Key, Value > *curr = buckets[index];
             Bucket< Key, Value > *prev = curr;
             
             while (curr != nullptr)
             {
-               if (!strcmp(k, curr->tuple.key)) //maybe compare hash values instead
+               if (k == curr->tuple.key) 
                   return &(curr->tuple);
                prev = curr;
                curr = curr->next;
@@ -119,12 +119,12 @@ template< typename Key, typename Value > class HashTable
 
       Tuple< Key, Value > *Find( const Key k ) const
          {
-            size_t index = hashbasic(&k[0], numberOfBuckets);
+            size_t index = hashbasic(k.at(0), numberOfBuckets);
             Bucket< Key, Value > *curr = buckets[index];
             
             while (curr != nullptr)
             {
-               if (!strcmp(k, curr->tuple.key)) //maybe compare hash values instead
+               if (k == curr->tuple.key) //maybe compare hash values instead
                   return &(curr->tuple);
                curr = curr->next;
             }
