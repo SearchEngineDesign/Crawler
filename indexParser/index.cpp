@@ -3,16 +3,19 @@
 #include "index.h"
 
 void Index::addDocument(HtmlParser &parser) {
-   for (auto i : parser.bodyWords)
-      dict.Find(i.first)->value.appendDelta(i.second + WordsInIndex, 0);
-   for (auto i : parser.headWords)
-      dict.Find(i.first)->value.appendDelta(i.second + WordsInIndex, 3);
-   for (auto i : parser.boldWords)
-      dict.Find(i.first)->value.appendDelta(i.second + WordsInIndex, 2);
-   for (auto i : parser.italicWords)
-      dict.Find(i.first)->value.appendDelta(i.second + WordsInIndex, 1);
-   for (auto i : parser.titleWords)
-      dict.Find(titleMarker + i.first)->value.appendDelta(i.second + WordsInIndex);
+
+   // for every word, append it to the end of its posting list
+
+   for (const auto& wordCount : parser.bodyWords)
+      dict.Find(wordCount.first)->value.appendDelta(wordCount.second + WordsInIndex, 0);
+   for (const auto& wordCount : parser.headWords)
+      dict.Find(wordCount.first)->value.appendDelta(wordCount.second + WordsInIndex, 3);
+   for (const auto &wordCount : parser.boldWords)
+      dict.Find(wordCount.first)->value.appendDelta(wordCount.second + WordsInIndex, 2);
+   for (const auto& wordCount : parser.italicWords)
+      dict.Find(wordCount.first)->value.appendDelta(wordCount.second + WordsInIndex, 1);
+   for (const auto& wordCount : parser.titleWords)
+      dict.Find(titleMarker + wordCount.first)->value.appendDelta(wordCount.second + WordsInIndex);
 
    //for (auto i : parser.links)
       //do something w anchortext
@@ -26,10 +29,11 @@ void Index::addDocument(HtmlParser &parser) {
 }
 
 void PostingList::appendDelta(size_t delta) {
-
+   
 }
 
 void PostingList::appendDelta(size_t delta, uint8_t style) {
+
  
 }
 
