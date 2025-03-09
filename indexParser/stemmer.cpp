@@ -2,27 +2,39 @@
 //stems words
 
 #include "index.h"
-#include <algorithm>
 #include <cctype>
 
 //MODIFIES: WORD
-void toLower (string word) 
+string standardize (string word) 
     {
+    //sets to lowercase
     for ( size_t i = 0; word[i] != '\0'; i++ )
         {
         word[i] = std::tolower( word[i] );
         }
-    }
-
-string removePunctuation (string word)
-    {
+    //removes punctuation
     string newWord;
     for ( size_t i = 0; word[i] != '\0'; i++ )
         if ( isalnum( word[i] ) )
             newWord.pushBack( word[i] );
+    
     return newWord;
+    //TODO: remove accents
     }
 
-string stem (string word) {
+static inline void removeS (string word)
+    {
+    if (word.substr(-4) == (string)"sses")
+        word.popBack(2);
+    if (word.substr(-3) == (string)"ies")
+        word.popBack(2);
+    if (word.substr(-1) == (string)"s" && word.substr(-2) != (string)"ss")
+        word.popBack(1);
+    }
 
-}
+//algorithm from Algorithm for Suffix Stripping by M.F. Porter
+string stem (string word) 
+    {
+    standardize(word);
+
+    }

@@ -271,6 +271,14 @@ class string
                m_data[--m_size] = '\0';
             }
          }
+      // REQUIRES: string is not empty
+      // MODIFIES: *this
+      // EFFECTS: Removes the last n characters of the string
+      void popback (size_t n)
+         {
+            m_size -= n;
+            m_data[m_size] = '\0';
+         }
 
       // Equality Operator
       // REQUIRES: Nothing
@@ -436,21 +444,28 @@ class string
       // MODIFIES: Nothing
       // EFFECTS: Returns a substring starting at pos with length count
       string substr(size_t pos, size_t count) const {
-         if (pos > m_size) {
+         if (pos > m_size)
             return string();
-         }
-         if (pos + count > m_size) {
+         if (pos + count > m_size)
             count = m_size - pos;
-         }
          return string(m_data + pos, count);
       }
 
       string substr(size_t pos) const {
-         if (pos > m_size) {
+         if (pos > m_size)
             return string();
-         }
          return string(m_data + pos, m_size-pos);
       }
+
+      string substr(int pos) const {
+         if (pos > m_size)
+            return string();
+         if (pos < 0)
+            return string( m_data + (m_size - pos), ( pos * -1) );
+         return string(m_data + pos, m_size-pos);
+      }
+
+      
       // Overload the + operator
       // REQUIRES: Nothing
       // MODIFIES: Nothing
