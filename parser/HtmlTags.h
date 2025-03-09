@@ -1,6 +1,7 @@
 // HtmlTags.h
 
 #pragma once
+#include <cstddef>
 
 // This header defines an alpha sorted array of the HTML tags recognized
 // along with the desired action.  The list of possible names is taken from
@@ -28,7 +29,10 @@ enum class DesiredAction
    DiscardSection,
    Anchor,
    Base,
-   Embed
+   Embed,
+   Head,
+   Bold,
+   Italic
    };
 
 // name points to beginning of the possible HTML tag name.
@@ -69,7 +73,7 @@ const HtmlTag TagsRecognized[ ] =
    { "article",      DesiredAction::Discard },
    { "aside",        DesiredAction::Discard },
    { "audio",        DesiredAction::Discard },
-   { "b",            DesiredAction::Discard },
+   { "b",            DesiredAction::Bold },
 
    { "base",         DesiredAction::Base },
 
@@ -114,18 +118,18 @@ const HtmlTag TagsRecognized[ ] =
    { "form",         DesiredAction::Discard },
    { "frame",        DesiredAction::Discard },
    { "frameset",     DesiredAction::Discard },
-   { "h1",           DesiredAction::Discard },
-   { "h2",           DesiredAction::Discard },
-   { "h3",           DesiredAction::Discard },
-   { "h4",           DesiredAction::Discard },
-   { "h5",           DesiredAction::Discard },
-   { "h6",           DesiredAction::Discard },
+   { "h1",           DesiredAction::Head },
+   { "h2",           DesiredAction::Head },
+   { "h3",           DesiredAction::Head },
+   { "h4",           DesiredAction::Head },
+   { "h5",           DesiredAction::Head },
+   { "h6",           DesiredAction::Head },
    { "head",         DesiredAction::Discard },
    { "header",       DesiredAction::Discard },
    { "hgroup",       DesiredAction::Discard },
    { "hr",           DesiredAction::Discard },
    { "html",         DesiredAction::Discard },
-   { "i",            DesiredAction::Discard },
+   { "i",            DesiredAction::Italic },
    { "iframe",       DesiredAction::Discard },
    { "img",          DesiredAction::Discard },
    { "input",        DesiredAction::Discard },

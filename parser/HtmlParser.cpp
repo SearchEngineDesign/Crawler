@@ -5,22 +5,76 @@
 // HtmlParser.h, you may do it here.
 
 #include "HtmlParser.h"
-#include <vector>
-#include <string>
-#include <cstring>
+#include "../include/vector.h"
+#include "../include/string.h"
 #include <iostream>
-using namespace std;
+#include <cstring>
+
+void HtmlParser::appendWord(const string &word,
+                           vector< std::pair<string, size_t> > &vec, bool append) {
+   if (append && !vec.empty()) {
+      vec.back().first += word;
+   } else {
+      vec.push_back(std::make_pair(word, count));
+   }
+}
+
+void HtmlParser::appendWord(const char * ptr, long len,
+                           vector< std::pair<string, size_t> > &vec) {
+   vec.emplace_back(string(ptr, len), count);
+}
+
+string HtmlParser::complete_link(string link, string base_url)
+{
+   if (link.find("http://") == 0 || link.find("https://") == 0)
+   {
+      return link;
+   }
+   else
+   {
+      size_t slashCount = 0;
+      while (*link.at(0) == '/') {
+         link = link.substr(1, link.length() - 1); //remove first character (/)
+         slashCount++;
+      }
+      while (*base_url.at(base_url.length() - 1) == '/')
+         base_url = base_url.substr(0, base_url.length() - 1); //remove last character (/)
+      switch (slashCount) {
+         case 0:
+            return base_url + "/" + link;
+         case 1:
+            return base_url + "/" + link;
+         case 2:
+            return string("https://") + link;
+         default:
+            return "";
+      }  
+   }
+}
 
 HtmlParser::HtmlParser( const char *buffer, size_t length )
    {
    size_t i = 0;  
    bool inTitle = false;  
    bool indiscard = false;  
-   bool inAnchor;  
+   bool inAnchor = false;
+   bool inHead = false;
+   bool inItalic = false;
+   bool inBold = false;
    string url;  
    vector< string > curr_anchorText;  
    const char *p = buffer;  
-   const char *end = buffer + length;  
+   const char *end = buffer + length; 
+
+   if ( *p == 'h' && *(p+1) == 't' && *(p+2) == 't' && *(p+3) == 'p' )
+   {
+      while ( *p != '\n' )
+         p++;
+      base = string( buffer, p - buffer);
+      p++;
+   }
+   while (*p != '<')
+      p++;
 
    while ( p < end )
       {
@@ -40,6 +94,8 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
             {
             if ( action == DesiredAction::Title )
                inTitle = false;  
+            else if ( action == DesiredAction::Head )
+               inHead = false;
             else if ( action == DesiredAction::Anchor )
                {
                if ( inAnchor )
@@ -47,9 +103,12 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                   inAnchor = false;  
                   if ( !url.empty() )
                      {
-                     Link curr_link( url );  
-                     links.push_back( curr_link );  
-                     links.back().anchorText = curr_anchorText;  
+                     url = complete_link(url, base);
+                     if (!url.empty()) {
+                        Link curr_link( url );  
+                        links.push_back( curr_link );  
+                        links.back().anchorText = curr_anchorText;  
+                     }
                      }
                   curr_anchorText.clear();  
                   }
@@ -63,6 +122,10 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                }
             else if ( action == DesiredAction::DiscardSection )
                indiscard = false;  
+            else if ( action == DesiredAction::Bold )
+               inBold = false;
+            else if ( action == DesiredAction::Italic )
+               inItalic = false;
             }
          else
             {
@@ -114,7 +177,11 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                      p++;  
                      }
                   if ( !embed_url.empty() )
-                     links.emplace_back( url );  
+                     {
+                        url = complete_link(embed_url, base);
+                        if (url.find("http") != -1)
+                           links.push_back( url );
+                     }
                   break;  
                   }
                case DesiredAction::Anchor:
@@ -126,6 +193,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                            {
                            if ( !url.empty() )
                               {
+                              url = complete_link(url, base);
                               Link curr_link( url );  
                               links.push_back( curr_link );  
                               links.back().anchorText = curr_anchorText;  
@@ -154,6 +222,15 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                   indiscard = true;  
                   break;  
 
+               case DesiredAction::Head:
+                  inHead = true;
+                  break;
+               case DesiredAction::Bold:
+                  inBold = true;
+                  break;
+               case DesiredAction::Italic:
+                  inItalic = true;
+                  break;
                case DesiredAction::OrdinaryText:
                   {
                   const char *start = p - 2;  
@@ -167,16 +244,34 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                      if ( inTitle )
                         {
                         if ( !isspace( *( start - 1 ) ) && !titleWords.empty() )
-                           titleWords.back() += word;  
+                           appendWord(word, titleWords, true);
                         else 
-                           titleWords.emplace_back( word );  
+                           appendWord(word, titleWords, false);
 
                         if ( inAnchor ) 
                            {
                            if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                               curr_anchorText.back() += word;  
                            else
-                              curr_anchorText.emplace_back( word );  
+                              curr_anchorText.push_back( word );  
+                           }
+                        }
+                     else if ( inHead )
+                        {
+                        if ( !isspace( *( start - 1 ) ) && !headWords.empty() )
+                           appendWord(word, headWords, true);
+                        else
+                           appendWord(word, headWords, false);
+                        if ( !isspace( *( start - 1 ) ) && !bodyWords.empty() )
+                           appendWord(word, bodyWords, true);
+                        else
+                           appendWord(word, bodyWords, false);
+                        if ( inAnchor )
+                           {
+                           if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
+                              curr_anchorText.back() += word;
+                           else
+                              curr_anchorText.push_back( word );
                            }
                         }
                      else if ( inAnchor )
@@ -184,20 +279,34 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         if ( !isspace( *( start - 1 ) ) && !curr_anchorText.empty() )
                            {
                            curr_anchorText.back() += word;  
-                           words.back() += word;  
+                           appendWord(word, bodyWords, true); 
                            } 
                         else
                            {
-                           curr_anchorText.emplace_back( word );  
-                           words.emplace_back( word );  
+                           curr_anchorText.push_back( word );  
+                           appendWord(word, bodyWords, false);
                            }
                         }
                      else
                         {
                         if ( !isspace( *( start - 1) ) ) 
-                           words.back() += word;  
+                           appendWord(word, bodyWords, true);
                         else 
-                           words.emplace_back( word );  
+                           appendWord(word, bodyWords, false);
+                        }
+                     if ( inBold )
+                        {
+                        if ( !isspace( *( start - 1 ) ) && !boldWords.empty() )
+                           appendWord(word, boldWords, true);
+                        else
+                           appendWord(word, boldWords, false);
+                        }
+                     else if ( inItalic )
+                        {
+                        if ( !isspace( *( start - 1 ) ) && !italicWords.empty() )
+                           appendWord(word, italicWords, true);
+                        else
+                           appendWord(word, italicWords, false);
                         }
                      continue;  
                      }
@@ -221,19 +330,37 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
 
          if ( !isEmptyWord && !indiscard )
             {
+            count++;
             if ( inTitle )
                {
-               titleWords.emplace_back( start, p - start );  
+               appendWord(start, p - start, titleWords);
                if ( inAnchor )
                   curr_anchorText.emplace_back( start, p - start );  
                }
-            else if ( inAnchor  )
+            else 
                {
-               curr_anchorText.emplace_back( start, p - start );  
-               words.emplace_back( start, p - start );  
+               appendWord(start, p - start, bodyWords);
+               if ( inHead )
+                  {
+                  appendWord(start, p - start, headWords);
+                  if ( inAnchor )
+                     curr_anchorText.emplace_back( start, p - start );
+                  }
+               else if ( inAnchor )
+                  {
+                  curr_anchorText.emplace_back( start, p - start );  
+                  }
                }
-            else
-               words.emplace_back( start, p - start );  
+
+               
+            if ( inBold )
+               {
+               appendWord(start, p - start, boldWords);
+               }
+            else if ( inItalic )
+               {
+               appendWord(start, p - start, boldWords);
+               }
             }
          if ( p < end && *p == '<' ) 
             continue;  

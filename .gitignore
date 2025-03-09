@@ -32,7 +32,7 @@
 *.app
 
 .vscode
-out
-LinuxGetSsl
-LinuxGetSsl.dSYM/Contents/Resources/Relocations/aarch64/LinuxGetSsl.yml
-/LinuxGetSsl.dSYM
+
+
+*.dSYM/
+*.DS_Store

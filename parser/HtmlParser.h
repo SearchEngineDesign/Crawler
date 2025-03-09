@@ -3,10 +3,11 @@
 
 #pragma once
 
-#include <vector>
+#include "../include/vector.h"
+// #include <vector>
 #include "HtmlTags.h"
-#include <string> 
-using namespace std;
+#include "../include/string.h"
+
 // This is a simple HTML parser class.  Given a text buffer containing
 // a presumed HTML page, the constructor will parse the text to create
 // lists of words, title words and outgoing links found on the page.  It
@@ -72,10 +73,12 @@ using namespace std;
 class Link
    {
    public:
-      std::string URL;
-      std::vector< std::string > anchorText;
+      string URL;
+      vector< string > anchorText;
 
-      Link( std::string URL ) : URL( URL )
+      Link() : URL(""), anchorText() { }
+
+      Link( string URL ) : URL( URL )
          {
          }
    };
@@ -84,19 +87,20 @@ class Link
 class HtmlParser
    {
    public:
-
-      std::vector< std::string > words, titleWords;
-      std::vector< Link > links;
-      std::string base;
-
-   private:
-      // Your code here.
-
-   public:
+      vector< std::pair<string, size_t> > bodyWords, titleWords, headWords, boldWords, italicWords;
+      vector< Link > links;
+      string base;
+      size_t count = 0;
 
       // The constructor is given a buffer and length containing
       // presumed HTML.  It will parse the buffer, stripping out
       // all the HTML tags and producing the list of words in body,
       // words in title, and links found on the page.
       HtmlParser(const char *buffer, size_t length);
+      
+   private:
+      void appendWord(const string &word, vector< std::pair<string, size_t> > &vec, bool append);
+      void appendWord(const char * ptr, long len, vector< std::pair<string, size_t> > &vec);
+      string complete_link(string link, string base_url);
+      
    };

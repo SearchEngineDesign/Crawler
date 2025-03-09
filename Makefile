@@ -5,15 +5,13 @@ OPENSSL_DIR = /opt/homebrew/opt/openssl@3
 INCLUDES = -I$(OPENSSL_DIR)/include
 LDFLAGS = -L$(OPENSSL_DIR)/lib
 
-all: LinuxGetSsl #LinuxGetUrl
+all: crawlParse #LinuxGetUrl
 
-LinuxGetSsl: main.cpp parser/HtmlParser.cpp parser/HtmlTags.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ $(LDFLAGS) -lssl -lcrypto -lz -o LinuxGetSsl -g
+crawlParse: main.cpp parser/HtmlParser.cpp parser/HtmlTags.cpp crawler/crawler.cpp include/string.cpp indexParser/index.cpp 
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ $(LDFLAGS) -lssl -lcrypto -lz -o crawlParse -g
 
-LinuxGetUrl: LinuxGetUrl.cpp
-	$(CXX) $(CXXFLAGS) $^ -o LinuxGetUrl
 
 .PHONY: clean
 
 clean:
-	rm -f LinuxGetSsl LinuxGetUrl
+	rm -f crawlParse 
