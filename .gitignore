@@ -36,3 +36,5 @@
 
 *.dSYM/
 *.DS_Store
+LinuxGetSsl
+out
