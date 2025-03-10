@@ -21,7 +21,6 @@ void crawlLoop() {
          in->addDocument(parser);
          for (auto i : parser.links)
             frontier.addNewUrl(i.URL);
-         
       }
    }
 }

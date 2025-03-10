@@ -26,7 +26,7 @@ void Index::addDocument(HtmlParser &parser) {
    }
 
    for (auto i : parser.links) {
-
+      //TODO: implement a good way to index anchor text
    }
 
    seek = dict.Find(eodMarker, PostingList(eodMarker, Token::EoD));
@@ -76,30 +76,36 @@ vector<bool> formatUtf8(const size_t &delta) {
          bitset[bitsetIndex] = deltaBits[deltaIndex];
          bitsetIndex++;
       }
-      if (deltaIndex < boundary) {
-         bitset[bitsetIndex] = 0;
-         bitset[bitsetIndex + 1] = 1;
-         bitsetIndex += 2;
-      }
+      bitset[bitsetIndex] = 0;
+      bitset[bitsetIndex + 1] = 1;
+      bitsetIndex += 2;
    }
    for (int i = bits; i >= bits - bytes; i--) {
        bitset[i] = 1;
    }
+
    return bitset;
 }
 
 void PostingList::appendTitleDelta(const size_t delta) {
    list.push_back(Post(formatUtf8(delta)));
+   std::cout << index << std::endl;
+   list.back().interpretData();
 }
 
 void PostingList::appendBodyDelta(size_t delta, uint8_t style) {
    delta = delta << 2;
    delta += style;
    list.push_back(Post(formatUtf8(delta)));   
+   std::cout << index << std::endl;
+   list.back().interpretData();
 }
 
 void PostingList::appendEODDelta(size_t delta, size_t docIndex) {
-   delta = delta << sizeof(docIndex);
-   delta += docIndex;
+   //TODO: tweak how we process these
+   //delta = delta << sizeof(docIndex);
+   //delta += docIndex;
    list.push_back(Post(formatUtf8(delta)));   
+   std::cout << index << std::endl;
+   list.back().interpretData();
 }
