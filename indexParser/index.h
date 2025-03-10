@@ -4,9 +4,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <cmath>
+#include <algorithm>
+#include <bitset>
 
 #include "../include/string.h"
 #include "../include/vector.h"
+#include "../include/Utf8.h"
 #include "hash/HashTable.h"
 #include "../parser/HtmlParser.h"
 
@@ -38,6 +42,12 @@ public:
     virtual Location getLocation();
     virtual Attributes getAttributes(); 
 
+    Post(vector<bool> &data_in) {
+        unsigned char bin[data_in.size()];
+        
+        memcpy(data, bin, data_in.size() / 8);
+    }
+
 private:
     //Variable byte size char array, to be encoded in utf-8.
     //Structure: n bits to encode the offset + 2 bits to encode style (for word tokens)
@@ -50,15 +60,24 @@ private:
 class PostingList {
 public:
     //virtual Post *Seek( Location );
-    void appendDelta(size_t delta); //title token
-    void appendDelta(size_t delta, uint8_t style); //body token
-    void appendEOD(size_t delta, size_t docIndex); //EOF token
+    void appendTitleDelta(size_t delta); //title token
+    void appendBodyDelta(size_t delta, uint8_t style); //body token
+    void appendEODDelta(size_t delta, size_t docIndex); //EOF token
+
+    //Construct empty posting list for string str_in
+    PostingList(string &str_in, Token type_in) : 
+                index(str_in), type(type_in), useCount(1) {}
+
+    //Get size of post list (in bytes)
+    size_t getListSize() {
+        return sizeof(list);
+    }
+
 private:
     //Common header
     size_t useCount;        //number of times token occurs
     size_t documentCount;   //number of documents containing token
     Token type;             //variety of token
-    size_t listSize;        //size of list (in bytes)
 
     //Type-specific data
 
