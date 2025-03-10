@@ -1,5 +1,4 @@
 #include <sys/socket.h>
-#include <unistd.h>
 #include <thread>
 #include <condition_variable>
 #include <iostream>
@@ -16,11 +15,13 @@ Index *in;
 void crawlLoop() {
    while(!frontier.empty()) {
       ParsedUrl cur = frontier.getNextUrl();
+      //std::cout << cur.urlName << std::endl;
       if (crawler.crawl(cur, buffer, pageSize) == 0) {
          HtmlParser parser( buffer, pageSize );
          in->addDocument(parser);
          for (auto i : parser.links)
             frontier.addNewUrl(i.URL);
+         
       }
    }
 }

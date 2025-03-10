@@ -3,21 +3,34 @@
 #include "index.h"
 
 void Index::addDocument(HtmlParser &parser) {
-   for (auto i : parser.bodyWords)
-      dict.Find(i.first, PostingList(i.first, Token::Body))->value.appendBodyDelta(i.second + WordsInIndex, 0);
-   for (auto i : parser.headWords)
-      dict.Find(i.first, PostingList(i.first, Token::Body))->value.appendBodyDelta(i.second + WordsInIndex, 3);
-   for (auto i : parser.boldWords)
-      dict.Find(i.first, PostingList(i.first, Token::Body))->value.appendBodyDelta(i.second + WordsInIndex, 2);
-   for (auto i : parser.italicWords)
-      dict.Find(i.first, PostingList(i.first, Token::Body))->value.appendBodyDelta(i.second + WordsInIndex, 1);
-   for (auto i : parser.titleWords)
-      dict.Find(titleMarker + i.first, PostingList(i.first, Token::Title))->value.appendTitleDelta(i.second + WordsInIndex);
+   Tuple<string, PostingList> *seek;
+   for (auto i : parser.bodyWords) {
+      seek = dict.Find(i.first, PostingList(i.first, Token::Body));
+      seek->value.appendBodyDelta(i.second + WordsInIndex, 0);
+   }
+   for (auto i : parser.headWords) {
+      seek = dict.Find(i.first, PostingList(i.first, Token::Body));
+      seek->value.appendBodyDelta(i.second + WordsInIndex, 3);
+   }
+   for (auto i : parser.boldWords) {
+      seek = dict.Find(i.first, PostingList(i.first, Token::Body));
+      seek->value.appendBodyDelta(i.second + WordsInIndex, 2);
+   }
+   for (auto i : parser.italicWords) {
+      seek = dict.Find(i.first, PostingList(i.first, Token::Body));
+      seek->value.appendBodyDelta(i.second + WordsInIndex, 1);
+   }
+   for (auto i : parser.titleWords) {
+      seek = dict.Find(titleMarker + i.first, PostingList(i.first, Token::Title));
+      seek->value.appendTitleDelta(i.second + WordsInIndex);
+   }
 
-   //for (auto i : parser.links)
-      //do something w anchortext
+   for (auto i : parser.links) {
 
-   dict.Find(eodMarker, PostingList(eodMarker, Token::EoD))->value.appendEODDelta(parser.count + WordsInIndex, DocumentsInIndex);
+   }
+
+   seek = dict.Find(eodMarker, PostingList(eodMarker, Token::EoD));
+   seek->value.appendEODDelta(parser.count + WordsInIndex, DocumentsInIndex);
    WordsInIndex += parser.count;
    DocumentsInIndex += 1;
    //LocationsInIndex += ?
@@ -35,7 +48,7 @@ uint8_t bitsNeeded(const size_t n) {
 
 vector<bool> formatUtf8(const size_t &delta) {
    const uint8_t boundary = bitsNeeded(delta);
-   std::bitset<sizeof(delta) * 8> deltaBits(delta);
+   std::bitset<sizeof(delta) << 3> deltaBits(delta);
 
    size_t bytes = 0;
    if (boundary < 7)
@@ -53,8 +66,8 @@ vector<bool> formatUtf8(const size_t &delta) {
    else if (boundary < 37)
       bytes = 6;
 
-   const uint8_t bits = ((bytes + 1) >> 8) - 1;
-   std::vector<bool> bitset(bits);
+   const uint8_t bits = ((bytes + 1) << 3) - 1;
+   vector<bool> bitset(bits + 1);
    uint8_t bitsetIndex = 0, initDelta = 0, deltaIndex = 0;
    
    while(deltaIndex < boundary) {
@@ -72,6 +85,7 @@ vector<bool> formatUtf8(const size_t &delta) {
    for (int i = bits; i >= bits - bytes; i--) {
        bitset[i] = 1;
    }
+   return bitset;
 }
 
 void PostingList::appendTitleDelta(const size_t delta) {
@@ -79,12 +93,13 @@ void PostingList::appendTitleDelta(const size_t delta) {
 }
 
 void PostingList::appendBodyDelta(size_t delta, uint8_t style) {
-   delta = delta >> 2;
+   delta = delta << 2;
    delta += style;
    list.push_back(Post(formatUtf8(delta)));   
 }
 
 void PostingList::appendEODDelta(size_t delta, size_t docIndex) {
-   delta = delta >> sizeof(docIndex);
+   delta = delta << sizeof(docIndex);
    delta += docIndex;
+   list.push_back(Post(formatUtf8(delta)));   
 }

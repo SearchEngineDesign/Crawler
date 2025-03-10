@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <cmath>
-#include <algorithm>
 #include <bitset>
 
 #include "../include/string.h"
@@ -38,16 +37,6 @@ typedef union Attributes {
 } Attributes;
 
 class Post {
-public:
-    virtual Location getLocation();
-    virtual Attributes getAttributes(); 
-
-    Post(vector<bool> &data_in) {
-        unsigned char bin[data_in.size()];
-        
-        memcpy(data, bin, data_in.size() / 8);
-    }
-
 private:
     //Variable byte size char array, to be encoded in utf-8.
     //Structure: n bits to encode the offset + 2 bits to encode style (for word tokens)
@@ -55,6 +44,31 @@ private:
         //the word belongs to has occurred with the URL it links to (for anchor text)
     //n bits to encode the EOF + n bits to encode an index to the corresponding URL for EOF tokens
     char *data;
+public:
+    //virtual Location getLocation();
+    //virtual Attributes getAttributes(); 
+
+    Post() {
+        data = nullptr;
+    }
+
+    Post(const vector<bool> data_in) {
+        assert(data_in.size() % 8 == 0);
+        uint8_t bytes = data_in.size() >> 3;
+        int index = 0;
+        unsigned char bin[bytes];
+        for (int i = 0; i < data_in.size(); i++) {
+            if (i % 8 == 0 && i != 0)
+                index++;
+            if (data_in[i])
+                bin[index] |= 1 << i;
+        }
+        data = new char[bytes];
+        memcpy(data, bin, bytes);
+    }
+
+    ~Post() {
+    }
 };
 
 class PostingList {
@@ -70,7 +84,11 @@ public:
 
     //Get size of post list (in bytes)
     size_t getListSize() {
-        return sizeof(list);
+       return sizeof(list);
+    }
+
+    string getIndex() {
+        return index;
     }
 
 private:
@@ -85,7 +103,7 @@ private:
     string index;
 
     //Posts
-    vector<Post> list;
+    std::vector<Post> list;
 
     //Sentinel
     char sentinel = '\0';
@@ -102,6 +120,11 @@ public:
     MaximumLocation = 0;
 
     Index() {}
+
+    HashTable<string, PostingList> *getDict() {
+        return &dict;
+    }
+
 private:
     //HashBlob dictBlob;
     HashTable<string, PostingList> dict;

@@ -45,7 +45,7 @@ template<typename T>
                vecSize = num_elements;
                vecCapacity = num_elements;  
                arr = new T[vecCapacity];   
-               for ( size_t i = 0; i < num_elements; i++ )
+               for ( size_t i = 0; i < num_elements; i++ ) 
                   arr[ i ] = T( );
             }
          }
