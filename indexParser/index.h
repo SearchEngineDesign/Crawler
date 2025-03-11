@@ -52,33 +52,29 @@ public:
         data = nullptr;
     }
 
-    Post(const vector<bool> data_in) {
-        assert(data_in.size() % 8 == 0);
-        uint8_t bytes = data_in.size() >> 3;
-        int index = bytes;
-        unsigned char bin[bytes];
-        for (int i = 0; i < data_in.size(); i++) {
-            std::cout << data_in[i];
-            if (i % 8 == 0)
-                index--;
-            if (data_in[i])
-                bin[index] |= 1 << i;
-            //Why is this writing wrong?
+    int get_bytes(const char first_byte) {
+        uint8_t bytes = 0;
+        uint8_t sentinel = 7;
+        while (first_byte >> sentinel & 1) {
+            bytes++;
+            sentinel--;
         }
-        
+        return bytes;
+    }
+
+    Post(const char * data_in) {
+        int bytes = get_bytes(data_in[0]);
         data = new char[bytes];
-        memcpy(data, bin, bytes);
-        std::cout << std::endl;
+        memcpy(data, data_in, bytes);
+        delete[] data_in;
     }
 
     ~Post() {
+        if (data != nullptr)
+            delete[] data;
     }
 
-    char *interpretData() {
-        if (data == nullptr)
-            return nullptr;
-        return data;
-    }
+    //needs copy cnstr
 };
 
 class PostingList {
@@ -113,7 +109,7 @@ private:
     string index;
 
     //Posts
-    std::vector<Post> list;
+    vector<Post> list;
 
     //Sentinel
     char sentinel = '\0';

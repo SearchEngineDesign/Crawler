@@ -46,66 +46,66 @@ uint8_t bitsNeeded(const size_t n) {
     return std::max(1, static_cast<int>(std::ceil(std::log2(n + 1))));
 }
 
-vector<bool> formatUtf8(const size_t &delta) {
+char *formatUtf8(const size_t &delta) {
    const uint8_t boundary = bitsNeeded(delta);
-   std::bitset<sizeof(delta) << 3> deltaBits(delta);
+   //std::bitset<sizeof(delta) << 3> deltaBits(delta);
 
    size_t bytes = 0;
    if (boundary < 7)
-      bytes = 0;
-   else if (boundary < 12)
       bytes = 1;
-   else if (boundary < 17)
+   else if (boundary < 12)
       bytes = 2;
-   else if (boundary < 22)
+   else if (boundary < 17)
       bytes = 3;
-   else if (boundary < 27)
+   else if (boundary < 22)
       bytes = 4;
-   else if (boundary < 32)
+   else if (boundary < 27)
       bytes = 5;
-   else if (boundary < 37)
+   else if (boundary < 32)
       bytes = 6;
+   else if (boundary < 37)
+      bytes = 7;
 
-   const uint8_t bits = ((bytes + 1) << 3) - 1;
-   vector<bool> bitset(bits + 1);
-   uint8_t bitsetIndex = 0, initDelta = 0, deltaIndex = 0;
+   char* bitset = new char[2];
+   uint8_t bitsetIndex = 0, initDelta = 0, deltaIndex = 0, index = bytes;
    
    while(deltaIndex < boundary) {
+      if (bitsetIndex % 8 == 0)
+         index--;
       initDelta = deltaIndex + 6;
       for (; deltaIndex < initDelta && deltaIndex < boundary; deltaIndex++) {
-         bitset[bitsetIndex] = deltaBits[deltaIndex];
+         if ((delta >> deltaIndex) & 1)
+            bitset[index] |= 1 << bitsetIndex;
          bitsetIndex++;
       }
-      bitset[bitsetIndex] = 0;
-      bitset[bitsetIndex + 1] = 1;
-      bitsetIndex += 2;
+      if (deltaIndex < boundary) {
+         bitset[index] |= 0 << bitsetIndex;
+         bitset[index] |= 1 << (bitsetIndex + 1);
+         bitsetIndex += 2;
+      }
+      bitsetIndex = bitsetIndex % 8;
    }
-   for (int i = bits; i >= bits - bytes; i--) {
-       bitset[i] = 1;
+   for (int i = 7; i > 7 - bytes; i--) {
+      bitset[0] |= 1 << i;
    }
 
    return bitset;
 }
 
 void PostingList::appendTitleDelta(const size_t delta) {
-   list.push_back(Post(formatUtf8(delta)));
+   list.emplace_back(formatUtf8(delta));  
    std::cout << index << std::endl;
-   list.back().interpretData();
 }
 
 void PostingList::appendBodyDelta(size_t delta, uint8_t style) {
    delta = delta << 2;
    delta += style;
-   list.push_back(Post(formatUtf8(delta)));   
-   std::cout << index << std::endl;
-   list.back().interpretData();
+   list.emplace_back(formatUtf8(delta));   
 }
 
 void PostingList::appendEODDelta(size_t delta, size_t docIndex) {
    //TODO: tweak how we process these
    //delta = delta << sizeof(docIndex);
    //delta += docIndex;
-   list.push_back(Post(formatUtf8(delta)));   
-   std::cout << index << std::endl;
-   list.back().interpretData();
+   list.emplace_back(formatUtf8(delta));  
 }
