@@ -31,11 +31,6 @@ enum class Style {
 typedef size_t Location; // Location 0 is the null location.
 typedef size_t FileOffset;
 
-typedef union Attributes {
-    string Word;
-    string Document;
-} Attributes;
-
 class Post {
 private:
     //Variable byte size char array, to be encoded in utf-8.
@@ -44,13 +39,6 @@ private:
         //the word belongs to has occurred with the URL it links to (for anchor text)
     //n bits to encode the EOF + n bits to encode an index to the corresponding URL for EOF tokens
     char *data;
-public:
-    //virtual Location getLocation();
-    //virtual Attributes getAttributes(); 
-
-    Post() {
-        data = nullptr;
-    }
 
     int get_bytes(const char first_byte) {
         uint8_t bytes = 0;
@@ -60,6 +48,11 @@ public:
             sentinel--;
         }
         return bytes;
+    }
+public:
+   
+    Post() {
+        data = nullptr;
     }
 
     Post(const char * data_in) {
@@ -74,7 +67,34 @@ public:
             delete[] data;
     }
 
-    //needs copy cnstr
+    Post &operator=(const Post &other) {
+        if (data != nullptr)
+            delete[] data;
+        int bytes = get_bytes(other.data[0]);
+        data = new char[bytes];
+        memcpy(data, other.data, bytes);
+        return *this;
+    }
+
+    void printBits() {
+        for (int i = 0; i < get_bytes(data[0]); i++) {
+            for (int j = 7; j >= 0; j--) {
+                std::cout << (data[i] >> j & 1);
+            }
+            std::cout << ' ';
+        }
+        std::cout << std::endl;
+    }
+
+    Style getStyle() {
+        //TODO
+        return Style::Normal;
+    }
+
+    Location getDelta() {
+        //TODO
+        return 0;
+    }
 };
 
 class PostingList {

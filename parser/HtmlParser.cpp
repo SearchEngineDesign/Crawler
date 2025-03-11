@@ -73,8 +73,20 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
       base = string( buffer, p - buffer);
       p++;
    }
-   while (*p != '<')
+   while (*p != '<') {
+      if (string(p, 9) == "ocation: ") {
+         p += 9;
+         const char *s = p;
+         int size = 0;
+         while (*p != '\r') {
+            size++;
+            p++;
+         }
+         links.push_back(Link(string(s, size)));
+      }
       p++;
+   }
+      
 
    while ( p < end )
       {

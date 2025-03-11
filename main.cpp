@@ -12,10 +12,15 @@ UrlFrontier frontier;
 
 Index *in;
 
+void printBuffer() {
+   for (int i = 0; i < pageSize; i++) {
+      std::cout << buffer[i];
+   }
+}
+
 void crawlLoop() {
    while(!frontier.empty()) {
       ParsedUrl cur = frontier.getNextUrl();
-      //std::cout << cur.urlName << std::endl;
       if (crawler.crawl(cur, buffer, pageSize) == 0) {
          HtmlParser parser( buffer, pageSize );
          in->addDocument(parser);

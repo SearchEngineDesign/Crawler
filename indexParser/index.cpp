@@ -48,8 +48,6 @@ uint8_t bitsNeeded(const size_t n) {
 
 char *formatUtf8(const size_t &delta) {
    const uint8_t boundary = bitsNeeded(delta);
-   //std::bitset<sizeof(delta) << 3> deltaBits(delta);
-
    size_t bytes = 0;
    if (boundary < 7)
       bytes = 1;
@@ -94,18 +92,17 @@ char *formatUtf8(const size_t &delta) {
 
 void PostingList::appendTitleDelta(const size_t delta) {
    list.emplace_back(formatUtf8(delta));  
-   std::cout << index << std::endl;
 }
 
 void PostingList::appendBodyDelta(size_t delta, uint8_t style) {
    delta = delta << 2;
    delta += style;
-   list.emplace_back(formatUtf8(delta));   
+   list.emplace_back(formatUtf8(delta)); 
 }
 
 void PostingList::appendEODDelta(size_t delta, size_t docIndex) {
    //TODO: tweak how we process these
-   //delta = delta << sizeof(docIndex);
-   //delta += docIndex;
+   delta = delta << sizeof(docIndex);
+   delta += docIndex;
    list.emplace_back(formatUtf8(delta));  
 }
