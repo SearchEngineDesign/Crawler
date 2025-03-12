@@ -9,26 +9,25 @@ string standardize (string word)
     {
     //sets to lowercase
     for ( size_t i = 0; word[i] != '\0'; i++ )
-        {
         word[i] = std::tolower( word[i] );
-        }
     //removes punctuation
     string newWord;
     for ( size_t i = 0; word[i] != '\0'; i++ )
         if ( isalnum( word[i] ) )
             newWord.pushBack( word[i] );
-    
     return newWord;
     //TODO: remove accents
     }
 
 static inline void removeS (string word)
     {
-    if (word.substr(-4) == (string)"sses")
+    if( word.substr(-1) != (string)"s" )
+        return;
+    if ( word.substr(-4) == (string)"sses" )
         word.popBack(2);
-    if (word.substr(-3) == (string)"ies")
+    if ( word.substr(-3) == (string)"ies" )
         word.popBack(2);
-    if (word.substr(-1) == (string)"s" && word.substr(-2) != (string)"ss")
+    if ( word.substr(-2) != (string)"ss" ) //word end guaranteed to be s from above
         word.popBack(1);
     }
 

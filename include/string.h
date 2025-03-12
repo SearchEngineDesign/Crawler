@@ -274,10 +274,16 @@ class string
       // REQUIRES: string is not empty
       // MODIFIES: *this
       // EFFECTS: Removes the last n characters of the string
-      void popback (size_t n)
+      void popBack (size_t n)
          {
-            m_size -= n;
-            m_data[m_size] = '\0';
+         if (m_size <= n)
+            {
+            m_size = 0;
+            m_data[0] = '\0';
+            return;
+            }
+         m_size -= n;
+         m_data[m_size] = '\0';
          }
 
       // Equality Operator
