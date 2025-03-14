@@ -65,8 +65,46 @@ class UrlFrontier {
 private:
    std::queue<ParsedUrl> urlQueue;
    std::set<string> seen;
+   std::set<string> robotsAcquired;
 
 public:
+    bool parseRobots( const char *buffer, size_t &pageSize, const string pathlessUrl ) {
+        const char *p = buffer;
+        bool collectingLines = false;
+        int count = 0;
+        string line;
+        const char * disallow = "Disallow: ";
+        
+        while (count < pageSize) {
+            const char *iter = p;
+            while (*iter != '\n') {
+                iter++;
+            }
+            line = string(p, iter-p);
+            if (collectingLines && line.find(disallow) != -1) {
+                string path(p + 10, iter - (p+10));
+                if (path == "/")
+                    return false;
+                addSeenUrl(pathlessUrl + path);
+            }
+
+            if (line == "User-agent: *") 
+                collectingLines = true;
+            if (collectingLines == true && line == "")
+                return true;
+            count += iter - p;
+            p = iter + 1;
+        }
+        return true;
+    }
+
+    bool robotFound( string &domain ) {
+        if (robotsAcquired.find(domain) != robotsAcquired.end())
+            return true;
+        robotsAcquired.insert(domain);
+        return false;
+    }
+
    void addNewUrl(const string & urlName) {
       if (seen.find(urlName) == seen.end()) {
         // TODO: priority?

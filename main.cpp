@@ -5,7 +5,7 @@
 #include "crawler/crawler.h"
 #include "indexParser/index.h"
 
-char buffer[2000000];
+char buffer[BUFFER_SIZE];
 size_t pageSize = 0;
 Crawler crawler;
 UrlFrontier frontier;
@@ -21,11 +21,13 @@ void printBuffer() {
 void crawlLoop() {
    while(!frontier.empty()) {
       ParsedUrl cur = frontier.getNextUrl();
-      if (crawler.crawl(cur, buffer, pageSize) == 0) {
-         HtmlParser parser( buffer, pageSize );
-         in->addDocument(parser);
-         for (auto i : parser.links)
-            frontier.addNewUrl(i.URL);
+      if (crawler.robots( frontier, buffer, pageSize, cur )) {
+         if (crawler.crawl(cur, buffer, pageSize) == 0) {
+            HtmlParser parser( buffer, pageSize );
+            //in->addDocument(parser);
+            for (auto i : parser.links)
+               frontier.addNewUrl(i.URL);
+         }
       }
    }
 }

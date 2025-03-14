@@ -24,13 +24,43 @@ bool Crawler::verifySSL() {
    if (!ssl) {
       return false;
    }
-   int error = 0;
-   socklen_t len = sizeof(error);
-   int ret = getsockopt(sd, SOL_SOCKET, SO_ERROR, &error, &len);
-   if (ret == 0)
-      return true;
-   else
-      return false;
+   int ret = SSL_peek(ssl, nullptr, 0); // Check connection without consuming data
+    if (ret <= 0) {
+        int err = SSL_get_error(ssl, ret);
+        if (err == SSL_ERROR_ZERO_RETURN) {
+            // Connection closed cleanly
+            return false;
+        } else if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+            fd_set fds;
+            FD_ZERO(&fds);
+            FD_SET(sd, &fds);
+            timeval tv;
+            tv.tv_sec = 1; // Timeout of 1 second
+            tv.tv_usec = 0;
+
+            int sel_ret;
+            if (err == SSL_ERROR_WANT_READ) {
+                sel_ret = select(sd + 1, &fds, nullptr, nullptr, &tv);
+            } else {
+                sel_ret = select(sd + 1, nullptr, &fds, nullptr, &tv);
+            }
+
+            if (sel_ret <= 0) {
+                // Select timed out or error occurred
+                return false;
+            }
+        } else if(err == SSL_ERROR_SYSCALL) {
+            if(errno == ECONNRESET || errno == EPIPE)
+                return false;
+            else
+                return true; // Some other syscall error, connection might still be alive
+        }
+        else {
+           // Some other error, might indicate a problem
+           return false;
+        }
+    }
+    return true;
 }
 
 int Crawler::setupConnection(string hostName) {
@@ -105,11 +135,13 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    
    const char* route = url.Host.c_str();
    hostent *host = gethostbyname(route);
-   //if (string(host->h_name) != currentHost || !verifySSL()) {
+   if (host == nullptr)
+      return 1;
+   if (string(host->h_name) != currentHost || !verifySSL()) {
       if (setupConnection(url.Host) != 0)
          return 1;
       currentHost = host->h_name;
-   //}
+   }
 
    //GET Message construction
    if (*path.at(0) != '/')
@@ -130,7 +162,8 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    }
    strcpy(buffer, concatStr.c_str());
    pageSize = concatStr.length();
-   while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0 && pageSize < 2000000) {
+   while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0 
+           && pageSize < BUFFER_SIZE - 64) {
       pageSize += bytes;
    }
    
