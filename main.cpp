@@ -3,7 +3,7 @@
 #include <condition_variable>
 #include <iostream>
 #include "crawler/crawler.h"
-#include "indexParser/index.h"
+#include "index/index.h"
 
 char buffer[BUFFER_SIZE];
 size_t pageSize = 0;
@@ -42,8 +42,7 @@ int main(int argc, char* argv[]) {
       return 1;
    }
    frontier.addNewUrl(argv[1]);
-   //in = IndexInterface(argv[2]).getIndex();
-   in = new Index;
+   in = IndexHandler(argv[2]).index;
    
    std::thread t1Crawler(crawlLoop);
    std::thread t2Parser(parseLoop);

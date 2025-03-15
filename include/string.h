@@ -3,8 +3,10 @@
 // Starter file for a string template
 
 #pragma once
-#include <cstddef>   // for size_t
+#include <cstddef>  // for size_t
 #include <ostream>  // for ostream
+#include <unistd.h> // for write
+#include <cstring>
 
 class string
    {
@@ -84,7 +86,6 @@ class string
       // EFFECTS: Copy the contents of other to this
       string(const string &other) 
          {
-
             m_size = other.m_size;
             m_capacity = other.m_capacity;
             m_data = new char[m_size + 1];
@@ -153,6 +154,15 @@ class string
       size_t size( ) const
          {
             return m_size;
+         }
+
+      // Capacity
+      // REQUIRES: Nothing
+      // MODIFIES: Nothing
+      // EFFECTS: Returns the reserve bytes of the string
+      size_t capacity( ) const
+         {
+            return m_capacity;
          }
 
       // empty
