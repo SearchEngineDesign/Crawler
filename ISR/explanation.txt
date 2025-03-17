@@ -1,0 +1,11 @@
+Number of tokens in the index [space] Number of unique tokens in the index [space] Number of documents in the index [newline]
+Word
+[Posting List 0: End of Documents] Number of occurrences of this token in the index [space] Number of documents in which this token occurs [space] Type of token
+Type Style
+Index row Number
+[Index row 1] High bits [space] Seek offset [space] Actual location
+[Index row 2] High bits [space] Seek offset [space] Actual location
+post1 post2 post3 ...
+Word
+[Posting List 1]
+...

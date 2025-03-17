@@ -1,0 +1,1 @@
+1. Ask Tom: who implement Synchronization points and how. [Slides 13, p32]
