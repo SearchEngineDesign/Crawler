@@ -106,9 +106,13 @@ class Dictionary
 public:
     ISR *OpenIsr(char *token);
     // The first line of index.txt, in order
-    Location GetNumberOfWords();
-    Location GetNumberOfUniqueWords(); // number of posting list
-    Location GetNumberOfDocuments();
+    size_t GetNumberOfWords();
+    size_t GetNumberOfUniqueWords(); // number of posting list
+    size_t GetNumberOfDocuments();
+
+private:
+    size_t numOfWords, numOfUniqueWords, numOfDocuments;
+    size_t SetNum(size_t numOfWords, size_t numOfUniqueWords, size_t numOfDocuments);
 };
 
 class ISR

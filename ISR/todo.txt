@@ -1,1 +1,2 @@
 1. Ask Tom: who implement Synchronization points and how. [Slides 13, p32]
+2. Ask Professor: how to read index.txt related to different words when using ISR? Read all and store as a big hash table?
