@@ -24,9 +24,9 @@ void crawlLoop() {
       if (crawler.robots( frontier, buffer, pageSize, cur )) {
          if (crawler.crawl(cur, buffer, pageSize) == 0) {
             HtmlParser parser( buffer, pageSize );
-            //in->addDocument(parser);
-            for (auto i : parser.links)
-               frontier.addNewUrl(i.URL);
+            in->addDocument(parser);
+            //for (auto i : parser.links)
+               //frontier.addNewUrl(i.URL);
          }
       }
    }
@@ -42,13 +42,15 @@ int main(int argc, char* argv[]) {
       return 1;
    }
    frontier.addNewUrl(argv[1]);
-   in = IndexHandler(argv[2]).index;
+   IndexHandler handler(argv[2]);
+   in = handler.index;
    
    std::thread t1Crawler(crawlLoop);
    std::thread t2Parser(parseLoop);
 
    t1Crawler.join();
    t2Parser.join();
+
 
    return 0;
 }

@@ -31,8 +31,6 @@ enum class DesiredAction
    Base,
    Embed,
    Head,
-   Bold,
-   Italic
    };
 
 // name points to beginning of the possible HTML tag name.
@@ -73,7 +71,6 @@ const HtmlTag TagsRecognized[ ] =
    { "article",      DesiredAction::Discard },
    { "aside",        DesiredAction::Discard },
    { "audio",        DesiredAction::Discard },
-   { "b",            DesiredAction::Bold },
 
    { "base",         DesiredAction::Base },
 
@@ -129,7 +126,6 @@ const HtmlTag TagsRecognized[ ] =
    { "hgroup",       DesiredAction::Discard },
    { "hr",           DesiredAction::Discard },
    { "html",         DesiredAction::Discard },
-   { "i",            DesiredAction::Italic },
    { "iframe",       DesiredAction::Discard },
    { "img",          DesiredAction::Discard },
    { "input",        DesiredAction::Discard },

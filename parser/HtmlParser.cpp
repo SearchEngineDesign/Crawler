@@ -11,17 +11,17 @@
 #include <cstring>
 
 void HtmlParser::appendWord(const string &word,
-                           vector< std::pair<string, size_t> > &vec, bool append) {
+                           vector< string > &vec, bool append) {
    if (append && !vec.empty()) {
-      vec.back().first += word;
+      vec.back() += word;
    } else {
-      vec.push_back(std::make_pair(word, count));
+      vec.push_back(word);
    }
 }
 
 void HtmlParser::appendWord(const char * ptr, long len,
-                           vector< std::pair<string, size_t> > &vec) {
-   vec.emplace_back(string(ptr, len), count);
+                           vector< string > &vec) {
+   vec.emplace_back(ptr, len);
 }
 
 string HtmlParser::complete_link(string link, string base_url)
@@ -134,10 +134,6 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                }
             else if ( action == DesiredAction::DiscardSection )
                indiscard = false;  
-            else if ( action == DesiredAction::Bold )
-               inBold = false;
-            else if ( action == DesiredAction::Italic )
-               inItalic = false;
             }
          else
             {
@@ -237,12 +233,6 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                case DesiredAction::Head:
                   inHead = true;
                   break;
-               case DesiredAction::Bold:
-                  inBold = true;
-                  break;
-               case DesiredAction::Italic:
-                  inItalic = true;
-                  break;
                case DesiredAction::OrdinaryText:
                   {
                   const char *start = p - 2;  
@@ -306,20 +296,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                         else 
                            appendWord(word, bodyWords, false);
                         }
-                     if ( inBold )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !boldWords.empty() )
-                           appendWord(word, boldWords, true);
-                        else
-                           appendWord(word, boldWords, false);
-                        }
-                     else if ( inItalic )
-                        {
-                        if ( !isspace( *( start - 1 ) ) && !italicWords.empty() )
-                           appendWord(word, italicWords, true);
-                        else
-                           appendWord(word, italicWords, false);
-                        }
+                     
                      continue;  
                      }
                   }
@@ -364,15 +341,7 @@ HtmlParser::HtmlParser( const char *buffer, size_t length )
                   }
                }
 
-               
-            if ( inBold )
-               {
-               appendWord(start, p - start, boldWords);
-               }
-            else if ( inItalic )
-               {
-               appendWord(start, p - start, boldWords);
-               }
+
             }
          if ( p < end && *p == '<' ) 
             continue;  

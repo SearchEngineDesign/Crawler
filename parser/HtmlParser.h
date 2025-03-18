@@ -87,7 +87,7 @@ class Link
 class HtmlParser
    {
    public:
-      vector< std::pair<string, size_t> > bodyWords, titleWords, headWords, boldWords, italicWords;
+      vector< string > bodyWords, titleWords, headWords;
       vector< Link > links;
       string base;
       size_t count = 0;
@@ -99,8 +99,8 @@ class HtmlParser
       HtmlParser(const char *buffer, size_t length);
       
    private:
-      void appendWord(const string &word, vector< std::pair<string, size_t> > &vec, bool append);
-      void appendWord(const char * ptr, long len, vector< std::pair<string, size_t> > &vec);
+      void appendWord(const string &word, vector< string > &vec, bool append);
+      void appendWord(const char * ptr, long len, vector< string > &vec);
       string complete_link(string link, string base_url);
       
    };

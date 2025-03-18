@@ -2,7 +2,6 @@
 
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/mman.h>
 #include <cmath>
 #include <bitset>
@@ -40,10 +39,10 @@ private:
     //n bits to encode the EOF + n bits to encode an index to the corresponding URL for EOF tokens
     char *data;
 
-    int get_bytes(const char first_byte) {
+    int get_bytes(const char first_byte) const {
         uint8_t bytes = 0;
         uint8_t sentinel = 7;
-        while (first_byte >> sentinel & 1) {
+        while ((first_byte >> sentinel) & 1) {
             bytes++;
             sentinel--;
         }
@@ -58,7 +57,7 @@ public:
     Post(const char * data_in) {
         int bytes = get_bytes(data_in[0]);
         data = new char[bytes];
-        memcpy(data, data_in, bytes);
+        std::memcpy(data, data_in, bytes);
         delete[] data_in;
     }
 
@@ -67,12 +66,22 @@ public:
             delete[] data;
     }
 
+    char * getData() const {
+        return data;
+    }
+
+    int length() const {
+        if (data == nullptr)
+            return 0;
+        return get_bytes(data[0]);
+    }
+
     Post &operator=(const Post &other) {
         if (data != nullptr)
             delete[] data;
         int bytes = get_bytes(other.data[0]);
         data = new char[bytes];
-        memcpy(data, other.data, bytes);
+        std::memcpy(data, other.data, bytes);
         return *this;
     }
 
@@ -100,51 +109,117 @@ public:
 class PostingList {
 public:
     //virtual Post *Seek( Location );
-    void appendTitleDelta(size_t delta); //title token
-    void appendBodyDelta(size_t delta, uint8_t style); //body token
-    void appendEODDelta(size_t delta, size_t docIndex); //EOF token
+    void appendTitleDelta(size_t &WordsInIndex, size_t &doc); //title token
+    void appendBodyDelta(size_t &WordsInIndex, uint8_t style, size_t &doc); //body token
+    void appendEODDelta(size_t &WordsInIndex, const size_t doc); //EOF token
 
     //Construct empty posting list for string str_in
     PostingList(string &str_in, Token type_in) : 
-                index(str_in), type(type_in), useCount(1) {}
+                token(str_in), type(type_in) {}
 
-    //Get size of post list (in bytes)
-    size_t getListSize() {
-       return sizeof(list);
+    // Return list's appearances
+    const size_t getUseCount() const {
+        return list.size();
     }
 
-    string getIndex() {
-        return index;
+    // Return list's document appearances 
+    const size_t getDocCount() const {
+        return list.size();
     }
+
+    // Return list's document appearances 
+    const char getType() const {
+        switch (type) {
+            case Token::EoD:
+                return 'e';
+            case Token::Anchor:
+                return 'a';
+            case Token::Body:
+                return 'b';
+            case Token::Title:
+                return 't';
+            case Token::URL:
+                return 'u';
+            default:
+                return '0';
+        }
+    }
+
+    // Return list's token
+    string getIndex() const {
+        return token;
+    }
+
+    // Get ptr to actual post list
+    const vector<Post> *getList() const {
+        return &list;
+    }
+
+    // Get ptr to seek table
+    const std::pair<size_t, size_t> *getSeekTable() const {
+        return SeekTable;
+    }
+
+    // Get seek index
+    size_t getSeekIndex() const {
+        return seekIndex;
+    }
+
+    // Update and assign delta of PostingList
+    size_t Delta(size_t &WordsInIndex, const size_t doc) {
+        size_t ret = WordsInIndex - lastPos;
+        lastPos = WordsInIndex;
+        ++WordsInIndex;
+        if (doc != lastDoc) {
+            lastDoc = doc;
+            ++documentCount;
+        }
+        return ret;
+    }
+
+    // last position this word occured at
+    size_t lastPos = 0;
+    // last document this word occured in
+    size_t lastDoc = -1;
 
 private:
+
     //Common header
-    size_t useCount;        //number of times token occurs
     size_t documentCount;   //number of documents containing token
     Token type;             //variety of token
 
     //Type-specific data
 
-    //Index
-    string index;
+    //Token
+    string token;
 
     //Posts
     vector<Post> list;
 
-    //Sentinel
-    char sentinel = '\0';
+    //Current magnitude of the SeekIndex for this PostingList
+    size_t seekIndex = 0;
+    //Seek list
+    // Array of size_t pairs -- the first is the index of the post in list, the second is its real location
+    std::pair<size_t, size_t> SeekTable[256];
+    void UpdateSeek( size_t index, const size_t location ) {
+        if (location >= (1 << seekIndex)) { // Is location >= 0x1, 0x10, 0x100, etc
+            SeekTable[seekIndex] = std::make_pair(index, location);
+            seekIndex++;
+        }
+    }
+
 };
 
 class Index {
 public:
-    // Constructor should map filename to memory
-    Index( const char * filename );
 
     // addDocument should take in parsed HTML and add it to the index.
     void addDocument(HtmlParser &parser);
-    vector<string> documents;
     size_t WordsInIndex = 0, 
     DocumentsInIndex = 0;
+
+    vector<string> documents;
+    
 
     Index() {}
 
@@ -153,21 +228,24 @@ public:
     }
 
 private:
+
     HashTable<string, PostingList> dict;
 
-    string titleMarker = string("@");
-    string anchorMarker = string("$");
-    string urlMarker = string("#");
-    string eodMarker = string("%");
+    char titleMarker = '@';
+    char anchorMarker = '$';
+    char urlMarker = '#';
+    char eodMarker = '%';
 };
 
-struct IndexHandler {
-    int fd;
-    void *map;
+// IndexHandler
+
+class IndexHandler {
+public:
     Index *index;
-    int fsize = 0;
+    IndexHandler() {};
     IndexHandler( const char * filename );
     ~IndexHandler() {
+        WriteIndex();
         if (msync(map, fsize, MS_SYNC) == -1) {
             perror("Error syncing memory to file");
             munmap(map, fsize);
@@ -176,21 +254,20 @@ struct IndexHandler {
 	        perror("Error un-mmapping the file");
         }
         close(fd);
-    }
-};
+        
+    };
 
-class ISR {
-public:
-    virtual Post *Next( );
-    virtual Post *NextDocument( );
-    virtual Post *Seek( Location target );
-    virtual Location GetStartLocation( );
-    virtual Location GetEndLocation( );
-};
+private:
+    int fd;
+    void *map;
+    int fsize = 0;
+    void WriteString(const string &str);
+    void WritePost(const Post &post);
+    void WritePostingList(const PostingList &list);
+    void WriteIndex();
+    void ReadIndex();
 
-class ISRWord : public ISR {
-public:
-    unsigned GetDocumentCount( );
-    unsigned GetNumberOfOccurrences( );
-    virtual Post *GetCurrentPost( );
+    char space = ' ';
+    char endl = '\n';
+    string EoF = "%";
 };
