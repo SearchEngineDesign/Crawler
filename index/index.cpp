@@ -118,7 +118,7 @@ IndexHandler::IndexHandler( const char * filename ) {
    ReadIndex();
 }
 
-void Index::addDocument(HtmlParser &parser) {
+void Index::addDocument(HtmlParser &parser, string base) {
    Tuple<string, PostingList> *seek;
    string concat;
    for (auto i : parser.bodyWords) {
@@ -152,7 +152,7 @@ void Index::addDocument(HtmlParser &parser) {
    seek->value.appendEODDelta(WordsInIndex, DocumentsInIndex);
    
    DocumentsInIndex += 1;
-   documents.push_back(parser.base);
+   documents.push_back(base);
    std::cout << WordsInIndex << std::endl;
 }
 

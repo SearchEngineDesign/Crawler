@@ -19,14 +19,15 @@ void printBuffer() {
 }
 
 void crawlLoop() {
+   int i = 0;
    while(!frontier.empty()) {
       ParsedUrl cur = frontier.getNextUrl();
       if (crawler.robots( frontier, buffer, pageSize, cur )) {
          if (crawler.crawl(cur, buffer, pageSize) == 0) {
             HtmlParser parser( buffer, pageSize );
-            in->addDocument(parser);
-            //for (auto i : parser.links)
-               //frontier.addNewUrl(i.URL);
+            in->addDocument(parser, cur.urlName);
+            for (auto i : parser.links)
+               frontier.addNewUrl(i.URL);
          }
       }
    }

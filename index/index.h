@@ -214,7 +214,7 @@ class Index {
 public:
 
     // addDocument should take in parsed HTML and add it to the index.
-    void addDocument(HtmlParser &parser);
+    void addDocument(HtmlParser &parser, string base);
     size_t WordsInIndex = 0, 
     DocumentsInIndex = 0;
 
