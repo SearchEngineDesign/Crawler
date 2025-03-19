@@ -4,7 +4,7 @@
 #include <netdb.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "utils/ParsedUrl.h"
+#include "../utils/ParsedUrl.h"
 #include <iostream>
 
 const size_t BUFFER_SIZE = 2000000;
