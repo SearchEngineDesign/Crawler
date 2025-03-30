@@ -129,6 +129,10 @@ int Crawler::setupConnection(string hostName) {
 
 int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    {
+
+   Crawler c = Crawler();
+
+
    int bytes;
    string concatStr = url.Service + string("://") + url.Host + string("\n");
    string path = url.Path;
@@ -137,10 +141,10 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    hostent *host = gethostbyname(route);
    if (host == nullptr)
       return 1;
-   if (string(host->h_name) != currentHost || !verifySSL()) {
-      if (setupConnection(url.Host) != 0)
+   if (string(host->h_name) != c.currentHost || !c.verifySSL()) {
+      if (c.setupConnection(url.Host) != 0)
          return 1;
-      currentHost = host->h_name;
+      c.currentHost = host->h_name;
    }
 
    //GET Message construction
@@ -155,14 +159,14 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       "Accept-Encoding: identity\r\n"
       "Connection: close\r\n\r\n";
 
-   if (SSL_write( ssl, getMessage.c_str(), getMessage.length() ) <= 0 ) {
+   if (SSL_write( c.ssl, getMessage.c_str(), getMessage.length() ) <= 0 ) {
       std::cerr << "Failed to write over SSL" << std::endl;
-      freeSSL();
+      c.freeSSL();
       return 1;
    }
    strcpy(buffer, concatStr.c_str());
    pageSize = concatStr.length();
-   while ((bytes = SSL_read(ssl, buffer + pageSize, sizeof(buffer))) > 0 
+   while ((bytes = SSL_read(c.ssl, buffer + pageSize, sizeof(buffer))) > 0 
            && pageSize < BUFFER_SIZE - 64) {
       pageSize += bytes;
    }

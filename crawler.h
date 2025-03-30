@@ -17,7 +17,7 @@ class Crawler
 
     {
     public:
-        int crawl ( ParsedUrl url, char *buffer, size_t &pageSize);
+        static int crawl ( ParsedUrl url, char *buffer, size_t &pageSize);
 
         /*
 
