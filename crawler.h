@@ -9,10 +9,6 @@
 
 const size_t BUFFER_SIZE = 2000000;
 
-//Fetch the header + HTML of a site at location URL.
-//Store information in buffer and modify pagesize accordingly.
-int crawl ( ParsedUrl url, char *buffer, size_t &pageSize);
-
 class Crawler
 
     {
