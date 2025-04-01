@@ -93,12 +93,13 @@ int Crawler::setupConnection(string hostName) {
    OpenSSL_add_all_algorithms();
    SSL_load_error_strings();
    SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
-   SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
 
    if (ctx == NULL) {
       std::cerr << "Couldn't initialize SSL context." << std::endl;
       return 1;
    }
+
+   SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
 
    ssl = SSL_new(ctx);
    if (!ssl) {
