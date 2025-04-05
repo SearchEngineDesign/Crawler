@@ -102,6 +102,7 @@ int Crawler::setupConnection(string hostName) {
    SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
 
    ssl = SSL_new(ctx);
+   SSL_CTX_free(ctx);
    if (!ssl) {
       std::cerr << "SSL initialization failed." << std::endl;
       return 1;

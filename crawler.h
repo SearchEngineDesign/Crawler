@@ -29,6 +29,10 @@ class Crawler
 
         Crawler();
 
+        ~Crawler() {
+            SSL_free(ssl);
+        }
+
     private:
         int setupConnection(string hostName);
         bool verifySSL();
