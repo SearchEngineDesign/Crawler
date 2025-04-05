@@ -76,7 +76,6 @@ int Crawler::setupConnection(string hostName) {
       if (sd == -1) break;
       if (connect(sd, addr->ai_addr, addr->ai_addrlen) == 0) break;
 
-      close(sd);
       sd = -1;
    }
    freeaddrinfo(address);

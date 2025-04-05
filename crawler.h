@@ -30,8 +30,12 @@ class Crawler
         Crawler();
 
         ~Crawler() {
-            if (ssl != nullptr)
+            if (sd != -1)
+                close(sd);
+            if (ssl != nullptr) {
                 SSL_free(ssl);
+            }   
+                
         }
 
     private:
@@ -40,6 +44,6 @@ class Crawler
         void freeSSL();
         struct addrinfo *address, hints;
         string currentHost;
-        SSL *ssl; //ssl socket
+        SSL *ssl = nullptr; //ssl socket
         int sd; //socket descriptor
     };
