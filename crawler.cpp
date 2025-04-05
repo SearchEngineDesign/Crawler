@@ -16,6 +16,7 @@ void Crawler::freeSSL() {
       SSL_shutdown( ssl );
       SSL_free( ssl );
       close(sd);
+      ssl = nullptr;
    }
    currentHost = "";
 }

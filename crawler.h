@@ -30,7 +30,8 @@ class Crawler
         Crawler();
 
         ~Crawler() {
-            SSL_free(ssl);
+            if (ssl != nullptr)
+                SSL_free(ssl);
         }
 
     private:
