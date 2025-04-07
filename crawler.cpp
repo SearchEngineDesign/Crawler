@@ -21,49 +21,6 @@ void Crawler::freeSSL() {
    currentHost = "";
 }
 
-bool Crawler::verifySSL() {
-   if (!ssl) {
-      return false;
-   }
-   int ret = SSL_peek(ssl, nullptr, 0); // Check connection without consuming data
-    if (ret <= 0) {
-        int err = SSL_get_error(ssl, ret);
-        if (err == SSL_ERROR_ZERO_RETURN) {
-            // Connection closed cleanly
-            return false;
-        } else if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
-            fd_set fds;
-            FD_ZERO(&fds);
-            FD_SET(sd, &fds);
-            timeval tv;
-            tv.tv_sec = 1; // Timeout of 1 second
-            tv.tv_usec = 0;
-
-            int sel_ret;
-            if (err == SSL_ERROR_WANT_READ) {
-                sel_ret = select(sd + 1, &fds, nullptr, nullptr, &tv);
-            } else {
-                sel_ret = select(sd + 1, nullptr, &fds, nullptr, &tv);
-            }
-
-            if (sel_ret <= 0) {
-                // Select timed out or error occurred
-                return false;
-            }
-        } else if(err == SSL_ERROR_SYSCALL) {
-            if(errno == ECONNRESET || errno == EPIPE)
-                return false;
-            else
-                return true; // Some other syscall error, connection might still be alive
-        }
-        else {
-           // Some other error, might indicate a problem
-           return false;
-        }
-    }
-    return true;
-}
-
 int Crawler::setupConnection(string hostName) {
    if (getaddrinfo(hostName.c_str(), "443", &hints, &address) < 0) {
       std::cerr << "Address lookup failed." << std::endl;
@@ -136,7 +93,7 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    hostent *host = gethostbyname(route);
    if (host == nullptr)
       return 1;
-   if (string(host->h_name) != c.currentHost || !c.verifySSL()) {
+   if (string(host->h_name) != c.currentHost) {
       if (c.setupConnection(url.Host) != 0)
          return 1;
       c.currentHost = host->h_name;
