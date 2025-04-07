@@ -14,7 +14,6 @@ Crawler::Crawler() {
 void Crawler::freeSSL() {
    if (ssl != nullptr) {
       SSL_shutdown( ssl );
-      SSL_free( ssl );
       close(sd);
       ssl = nullptr;
    }
@@ -56,7 +55,7 @@ int Crawler::setupConnection(string hostName) {
       return 1;
    }
 
-   SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
+   //SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
 
    ssl = SSL_new(ctx);
    SSL_CTX_free(ctx);
@@ -116,11 +115,11 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       c.freeSSL();
       return 1;
    }
-   string nstr = string(url.urlName + string('\n'));
+   string nstr = string(url.urlName + "\n");
    memcpy(buffer, nstr.c_str(), nstr.length());
    pageSize = nstr.length();
-   while ((bytes = SSL_read(c.ssl, buffer + pageSize, sizeof(buffer))) > 0 
-           && pageSize < BUFFER_SIZE - 64) {
+   while ((bytes = SSL_read(c.ssl, buffer + pageSize, 64)) > 0 
+           && pageSize < BUFFER_SIZE - 128) {
       pageSize += bytes;
    }
    

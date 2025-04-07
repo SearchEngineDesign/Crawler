@@ -7,7 +7,7 @@
 #include "../utils/ParsedUrl.h"
 #include <iostream>
 
-const size_t BUFFER_SIZE = 2000000;
+const size_t BUFFER_SIZE = 1000000;
 
 class Crawler
 
@@ -33,7 +33,7 @@ class Crawler
             if (sd != -1)
                 close(sd);
             if (ssl != nullptr) {
-                SSL_free(ssl);
+                //SSL_free(ssl);
             }   
                 
         }
