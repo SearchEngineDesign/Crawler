@@ -116,13 +116,7 @@ int Crawler::setupConnection(string hostName) {
    if (connect != 1) {
       std::cerr << "SSL connection failed." << std::endl;
       int err = SSL_get_error(ssl, connect);
-      if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
-      } else {
-         char error_buffer[256];
-         ERR_error_string_n(ERR_get_error(), error_buffer, sizeof(error_buffer));
-         std::cerr << "SSL_connect failed with error code: " << err << std::endl;
-         std::cerr << "Error string: " << error_buffer << std::endl;
-      }
+      std::cerr << "Error code: " << err << std::endl;
       freeSSL();
       return 1;
    }
@@ -136,7 +130,6 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
 
 
    int bytes;
-   string concatStr = url.Service + string("://") + url.Host + string("\n");
    string path = url.Path;
    
    const char* route = url.Host.c_str();
@@ -166,8 +159,9 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       c.freeSSL();
       return 1;
    }
-   strcpy(buffer, concatStr.c_str());
-   pageSize = concatStr.length();
+   string nstr = string(url.urlName + string('\n'));
+   memcpy(buffer, nstr.c_str(), nstr.length());
+   pageSize = nstr.length();
    while ((bytes = SSL_read(c.ssl, buffer + pageSize, sizeof(buffer))) > 0 
            && pageSize < BUFFER_SIZE - 64) {
       pageSize += bytes;
