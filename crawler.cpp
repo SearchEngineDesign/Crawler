@@ -122,6 +122,8 @@ int Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
            && pageSize < BUFFER_SIZE - 128) {
       pageSize += bytes;
    }
+   if (bytes < 0)
+      return 1;
    
    return 0;
    }
