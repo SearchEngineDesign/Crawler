@@ -13,7 +13,9 @@ class Crawler
 
     {
     public:
-        static int crawl ( ParsedUrl url, char *buffer, size_t &pageSize);
+        void crawl ( ParsedUrl url, char *buffer, size_t &pageSize);
+        Crawler();
+        ~Crawler();
 
         /*
 
@@ -27,23 +29,28 @@ class Crawler
 
         */
 
-        Crawler();
-
-        ~Crawler() {
-            if (sd != -1)
-                close(sd);
-            if (ssl != nullptr) {
-                //SSL_free(ssl);
-            }   
-                
-        }
-
     private:
-        int setupConnection(string hostName);
+        SSL_CTX *globalCtx; //global ssl context
+
+};
+
+
+
+class Connection {
+    public: 
+
+        Connection();
+        Connection(SSL_CTX * ctx, const string hostname);
         bool verifySSL();
         void freeSSL();
+        ~Connection();
+
+    private: 
+        SSL_CTX *ctx;
+        string hostname;
+        SSL *ssl;
+        int sd;
         struct addrinfo *address, hints;
-        string currentHost;
-        SSL *ssl = nullptr; //ssl socket
-        int sd; //socket descriptor
-    };
+
+        friend class Crawler;
+};
