@@ -41,12 +41,10 @@ class Connection {
 
         Connection();
         Connection(SSL_CTX * ctx, const string hostname);
-        bool verifySSL();
         void freeSSL();
         ~Connection();
 
     private: 
-        SSL_CTX *ctx;
         string hostname;
         SSL *ssl;
         int sd;

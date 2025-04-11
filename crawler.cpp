@@ -73,7 +73,7 @@ void Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       try {
          c = std::make_unique<Connection>(globalCtx, url.Host);         
       } catch (const std::runtime_error &e) {
-         std::cerr << "url.Host: |" << url.Host << std::endl;
+         std::cerr << "url.Host: | " << url.Host << std::endl;
          // std::cerr << "host->h_name (getbyhostname): |" << string(host->h_name) << std::endl;
          throw;
       }
@@ -105,7 +105,6 @@ void Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    }
    if (bytes < 0)
       throw std::runtime_error("SSL read failed.");
-   
    }
 
 
@@ -122,7 +121,7 @@ Connection::Connection() {
    hostname = "";
 }
 
-Connection::Connection(SSL_CTX * ctx, const string hostname): ctx(ctx), hostname(hostname) {
+Connection::Connection(SSL_CTX * ctx, const string hostname_in):  hostname(hostname_in) {
 
 
    // inefficient?
