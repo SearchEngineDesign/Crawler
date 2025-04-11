@@ -46,6 +46,7 @@ void Connection::freeSSL() {
           shutdown(sd, SHUT_RDWR);
           SSL_shutdown(ssl);
       }
+      close(sd);
       SSL_free(ssl);
       ssl = nullptr;
    }
@@ -67,10 +68,10 @@ void Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    const char* route = url.Host.c_str();
 
    try {
-      SSL_CTX *tmp = SSL_CTX_new(TLS_client_method());
-      //c = std::make_unique<Connection>(globalCtx, url.Host); 
-      c = std::make_unique<Connection>(tmp, url.Host); 
-      SSL_CTX_free(tmp);        
+      //SSL_CTX *tmp = SSL_CTX_new(TLS_client_method());
+      c = std::make_unique<Connection>(globalCtx, url.Host); 
+      //c = std::make_unique<Connection>(tmp, url.Host); 
+      //SSL_CTX_free(tmp);        
    } catch (const std::runtime_error &e) {
       std::cerr << "url.Host: | " << url.Host << std::endl;
       throw;
@@ -172,8 +173,8 @@ Connection::Connection(SSL_CTX * ctx, const string hostname_in):  hostname(hostn
    int connect = SSL_connect(ssl);
    if (connect != 1) {
       std::cerr << "SSL connection failed:" << hostname << std::endl;
-      int err = SSL_get_error(ssl, connect);
-      std::cerr << "Error code: " << err << std::endl;
+      //int err = SSL_get_error(ssl, connect);
+      //std::cerr << "Error code: " << err << std::endl;
       freeSSL();
       throw std::runtime_error("SSL connection failed.");
    }
