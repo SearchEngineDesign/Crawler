@@ -65,19 +65,17 @@ void Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
    string path = url.Path;
    
    const char* route = url.Host.c_str();
-   // hostent *host = gethostbyname(route);
-   // if (host == nullptr)
-   //    throw std::runtime_error("gethostbyname failed.");
 
-   // if (string(host->h_name) != "") {
-      try {
-         c = std::make_unique<Connection>(globalCtx, url.Host);         
-      } catch (const std::runtime_error &e) {
-         std::cerr << "url.Host: | " << url.Host << std::endl;
-         // std::cerr << "host->h_name (getbyhostname): |" << string(host->h_name) << std::endl;
-         throw;
-      }
-   // }
+   try {
+      SSL_CTX *tmp = SSL_CTX_new(TLS_client_method());
+      //c = std::make_unique<Connection>(globalCtx, url.Host); 
+      c = std::make_unique<Connection>(tmp, url.Host); 
+      SSL_CTX_free(tmp);        
+   } catch (const std::runtime_error &e) {
+      std::cerr << "url.Host: | " << url.Host << std::endl;
+      throw;
+   }
+   // 
 
    // GET Message construction
    if (*path.at(0) != '/')
