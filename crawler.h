@@ -17,18 +17,6 @@ class Crawler
         Crawler();
         ~Crawler();
 
-        /*
-
-        bool robots( UrlFrontier &frontier, char *buffer, size_t &pageSize, ParsedUrl url ) {
-            if (frontier.robotFound(url.Host))
-                return true;
-            url.Path = string("/robots.txt");
-            crawl(url, buffer, pageSize);
-            return frontier.parseRobots(buffer, pageSize, url.Service + "://" + url.Host);
-        }
-
-        */
-
     private:
         SSL_CTX *globalCtx; //global ssl context
 
