@@ -73,7 +73,7 @@ void Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
       //c = std::make_unique<Connection>(tmp, url.Host); 
       //SSL_CTX_free(tmp);        
    } catch (const std::runtime_error &e) {
-      std::cerr << "url.Host: | " << url.Host << std::endl;
+      std::cerr << "url: | " << url.urlName << std::endl;
       throw;
    }
    // 
