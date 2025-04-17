@@ -123,15 +123,29 @@ Connection::Connection() {
 Connection::Connection(SSL_CTX * ctx, const string hostname_in):  hostname(hostname_in) {
 
 
+   if (ctx == nullptr) {
+      std:: cerr << "Couldn't initialize SSL context for host: \"" <<  hostname << "\"" << std::endl;
+      std:: cerr << "global ctx is nullptr" << std::endl;
+      throw std::runtime_error("global ssl context is null.");
+   }
+
+   ssl = SSL_new(ctx);
+
+   if (!ssl) {
+      std::cerr << "SSL initialization failed:" << hostname << std::endl;
+      throw std::runtime_error("SSL initialization failed");         
+   }
+   SSL_set_tlsext_host_name(ssl, hostname.c_str());
+
    // inefficient?
    memset(&hints, 0, sizeof(hints));
    hints.ai_family = AF_INET;
    hints.ai_socktype = SOCK_STREAM;
    hints.ai_protocol = IPPROTO_TCP;
 
-   if (getaddrinfo(hostname.c_str(), "443", &hints, &address) < 0) {
-      std::cerr << "Address lookup failed for " << hostname << std::endl;
-      throw std::runtime_error("Address lookup failed.");
+   int addresult = getaddrinfo(hostname.c_str(), "443", &hints, &address);
+   if (addresult != 0) {
+      throw std::runtime_error(gai_strerror(addresult));
    }
 
    for (struct addrinfo *addr = address; addr != NULL; addr = addr->ai_next) {
@@ -145,27 +159,8 @@ Connection::Connection(SSL_CTX * ctx, const string hostname_in):  hostname(hostn
    freeaddrinfo(address);
 
    if (sd == -1) {
-      std::cerr << "Couldn't connect to host:" << hostname << std::endl;
       throw std::runtime_error("Couldn't connect to host.");
    }
-
-
-   if (ctx == nullptr) {
-      std:: cerr << "Couldn't initialize SSL context for host: \"" <<  hostname << "\"" << std::endl;
-      std:: cerr << "global ctx is nullptr" << std::endl;
-      throw std::runtime_error("global ssl context is null.");
-   }
-
-   ssl = SSL_new(ctx);
-
-
-
-
-   if (!ssl) {
-      std::cerr << "SSL initialization failed:" << hostname << std::endl;
-      throw std::runtime_error("SSL initialization failed");         
-   }
-   SSL_set_tlsext_host_name(ssl, hostname.c_str());
    
    
    SSL_set_fd(ssl, sd);
