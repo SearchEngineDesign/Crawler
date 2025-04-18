@@ -7,13 +7,12 @@
 
 
 Crawler::Crawler() {
-   
+   SSL_library_init();
    OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
    OpenSSL_add_all_algorithms();
    SSL_load_error_strings();
 
-   const SSL_METHOD *method = TLS_client_method();
-   globalCtx = SSL_CTX_new(method);
+   globalCtx = SSL_CTX_new(TLS_client_method());
    if (globalCtx == nullptr) {
       std::cerr << "Couldn't initialize global SSL context." << std::endl;
       exit(1);
@@ -59,7 +58,6 @@ void Crawler::crawl ( ParsedUrl url, char *buffer, size_t &pageSize)
 
    // Crawler c = Crawler();
    std::unique_ptr<Connection> c = nullptr;
-
 
 
    int bytes;
@@ -168,8 +166,6 @@ Connection::Connection(SSL_CTX * ctx, const string hostname_in):  hostname(hostn
    int connect = SSL_connect(ssl);
    if (connect != 1) {
       std::cerr << "SSL connection failed:" << hostname << std::endl;
-      //int err = SSL_get_error(ssl, connect);
-      //std::cerr << "Error code: " << err << std::endl;
       freeSSL();
       throw std::runtime_error("SSL connection failed.");
    }
