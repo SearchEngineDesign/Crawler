@@ -7,7 +7,7 @@
 #include "../utils/ParsedUrl.h"
 #include <iostream>
 
-const size_t BUFFER_SIZE = 1000000;
+const size_t BUFFER_SIZE = 10000000;
 
 class Crawler
 
