@@ -18,11 +18,9 @@ Crawler::Crawler() {
 Crawler::~Crawler() {
 
    // This should never execute!
+   // but it will if the program shuts down
    SSL_CTX_free(globalCtx);
    globalCtx = nullptr;
-   ERR_free_strings();
-   EVP_cleanup();
-   CRYPTO_cleanup_all_ex_data();
 }
 
 void Connection::freeSSL() {
