@@ -4,10 +4,18 @@
 #include <netdb.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "../utils/ParsedUrl.h"
 #include <iostream>
 
+
+#include <cf/ParsedUrl.h>
+#include <cf/searchstring.h>
+
+
 const size_t BUFFER_SIZE = 10000000;
+
+
+using cf::ParsedUrl;
+using cf::string;
 
 class Crawler
 
