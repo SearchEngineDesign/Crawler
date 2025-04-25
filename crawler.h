@@ -14,8 +14,6 @@
 const size_t BUFFER_SIZE = 10000000;
 
 
-using cf::ParsedUrl;
-using cf::string;
 
 class Crawler
 
